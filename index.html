@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CROSSCRAWL — Roguelite Crossword (v1)</title>
+  <meta name="description" content="A tiny roguelite crossword prototype you can host on GitHub Pages." />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>🧩 CROSSCRAWL <span class="tag">v1</span></h1>
+    <div class="controls">
+      <button id="btn-new-run">Start New Run</button>
+      <button id="btn-how">How to Play</button>
+      <label class="toggle">
+        <input id="toggle-contrast" type="checkbox" />
+        <span>High Contrast</span>
+      </label>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="hud" aria-live="polite">
+      <div><strong>Room:</strong> <span id="hud-room">0/3</span></div>
+      <div><strong>Focus (HP):</strong> <span id="hud-focus">—</span></div>
+      <div><strong>Timer:</strong> <span id="hud-timer">00:00</span></div>
+      <div><strong>Wrong:</strong> <span id="hud-wrongs">0</span></div>
+      <div><strong>Checks:</strong> <span id="hud-checks">0</span></div>
+      <div><strong>Reveals:</strong> <span id="hud-reveals">0</span></div>
+      <div><strong>Relic:</strong> <span id="hud-relic">—</span></div>
+      <div><strong>Curse:</strong> <span id="hud-curse">—</span></div>
+    </section>
+
+    <section class="board-and-clues">
+      <div id="grid" class="grid" role="grid" aria-label="Crossword grid"></div>
+
+      <aside class="clues">
+        <h2>Across</h2>
+        <ol id="clues-across" class="clue-list"></ol>
+        <div class="actions">
+          <button id="btn-check-letter">Check Letter (C)</button>
+          <button id="btn-reveal-letter">Reveal Letter (R)</button>
+          <button id="btn-peek-clue">Peek Clue (cost 1 Focus)</button>
+        </div>
+        <div class="tips">
+          <p><strong>Keys:</strong> Letters to type · Backspace to clear · Arrow keys to move · Tab/Shift+Tab to change entry · Space to jump to next empty cell.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <footer class="bottombar">
+    <div>Made for the web · No sign-in · Open source</div>
+    <a href="https://github.com/" target="_blank" rel="noopener">Deploy on GitHub Pages</a>
+  </footer>
+
+  <!-- Dialogs -->
+  <dialog id="modal-how">
+    <h3>How to Play</h3>
+    <p><em>Roguelite + Crossword</em>: You get 3 rooms (mini-puzzles) per run. Each wrong letter costs Focus (HP). Lose all Focus, and the run ends.</p>
+    <ul>
+      <li><strong>Relic:</strong> Red Pencil — the first wrong letter in a room deals 0 damage.</li>
+      <li><strong>Curse:</strong> Fog of Clue — clues are hidden; you can <em>Peek</em> for 1 Focus if needed.</li>
+      <li><strong>Consumables:</strong> Checks (validate a letter) and Reveals (fill a letter).</li>
+    </ul>
+    <button id="btn-close-how">Close</button>
+  </dialog>
+
+  <dialog id="modal-room-end">
+    <h3 id="room-end-title"></h3>
+    <div id="room-end-body"></div>
+    <div class="dialog-actions">
+      <button id="btn-continue">Continue</button>
+      <button id="btn-end-run">End Run</button>
+    </div>
+  </dialog>
+
+  <dialog id="modal-run-end">
+    <h3>Run Summary</h3>
+    <div id="run-summary"></div>
+    <div class="dialog-actions">
+      <button id="btn-new-run-2">Start New Run</button>
+      <button id="btn-close-summary">Close</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
