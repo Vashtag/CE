@@ -6,6 +6,10 @@
   <title>Crosscrawl v1 — Roguelite Crossword (Room Demo)</title>
   <meta name="description" content="Crosscrawl v1: a roguelite mini-crossword room demo with Focus (HP), Red Pencil relic, and Fog of Clue curse." />
   <link rel="stylesheet" href="styles.css" />
+  <style>
+  /* Ensure the overlay really stays hidden until JS shows it */
+  .overlay[hidden] { display: none !important; }
+</style>
 </head>
 <body>
   <header class="app-header">
@@ -94,7 +98,7 @@
   </div>
 
   <footer class="app-footer">
-    <p>© Crosscrawl v1 demo. MIT License. Built as a web-first roguelite crossword experiment.</p>
+    <p>© Crosscrawl v1 demo</p>
     <p>
       <a href="https://github.com" target="_blank" rel="noopener">GitHub</a> •
       <a href="#" id="link-readme">README</a>
