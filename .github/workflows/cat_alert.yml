@@ -1,0 +1,88 @@
+name: Cat Adoption Alert
+
+# ── Triggers ─────────────────────────────────────────────────────────────────
+on:
+  schedule:
+    # Runs every 15 minutes, 24/7.
+    # NOTE: GitHub only runs scheduled workflows from the repo's DEFAULT branch.
+    #       Merge this PR into main/master before the schedule kicks in.
+    # NOTE: If this is a private repo you may hit the 2,000 min/month free limit.
+    #       Making the repo public gives unlimited minutes (secrets stay private).
+    - cron: '*/15 * * * *'
+
+  # Lets you trigger a test run manually from the Actions tab at any time.
+  workflow_dispatch:
+
+# ── Permissions ───────────────────────────────────────────────────────────────
+permissions:
+  contents: write   # needed to commit known_cats.json back to the repo
+
+# ── Job ──────────────────────────────────────────────────────────────────────
+jobs:
+  check-for-cats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # 1. Check out code
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Python setup
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # 3. Cache pip packages (speeds up every run after the first)
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: pip-${{ runner.os }}-${{ hashFiles('cat_checker/requirements.txt') }}
+          restore-keys: pip-${{ runner.os }}-
+
+      - name: Install Python dependencies
+        run: pip install -r cat_checker/requirements.txt
+
+      # 4. Cache Playwright Chromium browser (~150 MB, avoids re-downloading)
+      - name: Cache Playwright browsers
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('cat_checker/requirements.txt') }}
+
+      - name: Install Playwright browser (first run only)
+        if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: playwright install chromium --with-deps
+
+      # System deps are always needed even when the browser binary is cached
+      - name: Install Playwright system dependencies
+        run: playwright install-deps chromium
+
+      # 5. Run the scraper
+      - name: Check for new young cats
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAILS: ${{ secrets.NOTIFY_EMAILS }}
+          # Set to "true" to force Playwright; "false" tries requests first (faster)
+          USE_PLAYWRIGHT: 'true'
+        run: python cat_checker/scraper.py
+
+      # 6. Commit updated state file if anything changed
+      - name: Save known-cats state
+        run: |
+          git config user.name  "cat-alert-bot"
+          git config user.email "actions@github.com"
+          git add cat_checker/known_cats.json
+          # Only commit if the file actually changed
+          if git diff --staged --quiet; then
+            echo "No state changes to commit."
+          else
+            git commit -m "chore: update known cats state [skip ci]"
+            # Pull first to avoid conflicts if two runs overlap
+            git pull --rebase origin ${{ github.ref_name }}
+            git push origin ${{ github.ref_name }}
+          fi
