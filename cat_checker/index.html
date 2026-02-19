@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -7,21 +7,154 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Theme variables ───────────────────────────────────────────────────── */
+    :root {
+      --bg:          #fdf6ee;
+      --bg-card:     #ffffff;
+      --bg-thead:    #f5ebe0;
+      --bg-hover:    #fdf0e5;
+      --bg-pill:     #fff3e8;
+      --bg-email:    #fff3e8;
+      --bg-config:   #ffffff;
+      --border:      #f0e0d0;
+      --border-pill: #f5d5b8;
+      --border-row:  #f0e8df;
+      --text:        #333333;
+      --text-muted:  #777777;
+      --text-sub:    #aaaaaa;
+      --text-label:  #999999;
+      --text-sep:    #dddddd;
+      --text-th:     #666666;
+      --accent:      #c0550a;
+      --accent-blue: #2563eb;
+      --accent-green:#2e8b57;
+      --shadow:      rgba(0,0,0,.07);
+      --badge-alert-bg: #fde8d0;
+      --badge-quiet-bg: #e8f5ee;
+      --badge-zero-bg:  #eeeeee;
+      --badge-zero-text:#999999;
+      --section-border: #f0e0d0;
+    }
+
+    [data-theme="dark"] {
+      --bg:          #1a1a1a;
+      --bg-card:     #252525;
+      --bg-thead:    #2e2e2e;
+      --bg-hover:    #2a2a2a;
+      --bg-pill:     #2e2218;
+      --bg-email:    #2e2218;
+      --bg-config:   #252525;
+      --border:      #3a3a3a;
+      --border-pill: #4a3020;
+      --border-row:  #333333;
+      --text:        #e0e0e0;
+      --text-muted:  #aaaaaa;
+      --text-sub:    #888888;
+      --text-label:  #888888;
+      --text-sep:    #444444;
+      --text-th:     #aaaaaa;
+      --accent:      #e07b39;
+      --accent-blue: #4a90d9;
+      --accent-green:#3aad6e;
+      --shadow:      rgba(0,0,0,.3);
+      --badge-alert-bg: #3d2010;
+      --badge-quiet-bg: #0e2a1a;
+      --badge-zero-bg:  #2a2a2a;
+      --badge-zero-text:#888888;
+      --section-border: #3a3a3a;
+    }
+
+    /* ── Base ──────────────────────────────────────────────────────────────── */
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      background: #fdf6ee;
-      color: #333;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       padding: 2rem 1rem;
+      transition: background .2s, color .2s;
     }
 
+    a { color: var(--accent); }
+
+    /* ── Header ────────────────────────────────────────────────────────────── */
     header {
       text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    header h1 { font-size: 2rem; color: var(--accent); }
+    header p  { color: var(--text-muted); margin-top: .3rem; font-size: .95rem; }
+
+    /* ── Dark-mode toggle ──────────────────────────────────────────────────── */
+    #theme-toggle {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: .4rem .75rem;
+      font-size: .85rem;
+      cursor: pointer;
+      color: var(--text);
+      transition: background .2s, border-color .2s;
+    }
+    #theme-toggle:hover { border-color: var(--accent); }
+
+    /* ── Paused banner ─────────────────────────────────────────────────────── */
+    #paused-banner {
+      display: none;
+      background: #7f1d1d;
+      color: #fecaca;
+      border-radius: 10px;
+      padding: .75rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+      text-align: center;
+      font-size: .95rem;
+      letter-spacing: .02em;
+    }
+    #paused-banner.visible { display: block; }
+
+    /* ── Control buttons ───────────────────────────────────────────────────── */
+    .controls {
+      display: flex;
+      gap: .75rem;
+      justify-content: center;
+      flex-wrap: wrap;
       margin-bottom: 2rem;
     }
-    header h1 { font-size: 2rem; color: #c0550a; }
-    header p  { color: #777; margin-top: .3rem; font-size: .95rem; }
 
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .6rem 1.3rem;
+      border-radius: 10px;
+      font-size: .92rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: filter .15s, transform .1s;
+    }
+    .btn:hover  { filter: brightness(1.12); transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); filter: brightness(.95); }
+
+    .btn-stop {
+      background: #dc2626;
+      color: #fff;
+    }
+    .btn-resume {
+      background: var(--accent-green);
+      color: #fff;
+    }
+    .btn-check {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    /* ── Summary cards ─────────────────────────────────────────────────────── */
     .cards {
       display: flex;
       gap: 1rem;
@@ -30,41 +163,45 @@
       margin-bottom: 2rem;
     }
     .card {
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      box-shadow: 0 2px 8px var(--shadow);
       padding: 1.25rem 1.75rem;
       min-width: 180px;
       text-align: center;
+      transition: background .2s;
     }
-    .card .label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: #999; }
-    .card .value { font-size: 1.6rem; font-weight: 700; color: #c0550a; margin-top: .2rem; }
-    .card .sub   { font-size: .8rem; color: #aaa; margin-top: .15rem; }
+    .card .label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: var(--text-label); }
+    .card .value { font-size: 1.6rem; font-weight: 700; color: var(--accent); margin-top: .2rem; }
+    .card .sub   { font-size: .8rem; color: var(--text-sub); margin-top: .15rem; }
 
-    .card.green .value { color: #2e8b57; }
-    .card.blue  .value { color: #2563eb; }
+    .card.green .value { color: var(--accent-green); }
+    .card.blue  .value { color: var(--accent-blue); }
 
+    /* ── Section title ─────────────────────────────────────────────────────── */
     .section-title {
       font-size: 1.05rem;
       font-weight: 600;
-      color: #555;
+      color: var(--text-muted);
       margin-bottom: .75rem;
-      border-bottom: 2px solid #f0e0d0;
+      border-bottom: 2px solid var(--section-border);
       padding-bottom: .4rem;
     }
 
+    /* ── Table ─────────────────────────────────────────────────────────────── */
     table {
       width: 100%;
       border-collapse: collapse;
-      background: #fff;
+      background: var(--bg-card);
       border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      box-shadow: 0 2px 8px var(--shadow);
       font-size: .9rem;
+      transition: background .2s;
     }
     thead th {
-      background: #f5ebe0;
-      color: #666;
+      background: var(--bg-thead);
+      color: var(--text-th);
       font-weight: 600;
       padding: .7rem 1rem;
       text-align: left;
@@ -72,10 +209,11 @@
       text-transform: uppercase;
       letter-spacing: .04em;
     }
-    tbody tr { border-top: 1px solid #f0e8df; }
-    tbody tr:hover { background: #fdf0e5; }
+    tbody tr { border-top: 1px solid var(--border-row); }
+    tbody tr:hover { background: var(--bg-hover); }
     tbody td { padding: .65rem 1rem; vertical-align: top; }
 
+    /* ── Badges ────────────────────────────────────────────────────────────── */
     .badge {
       display: inline-block;
       padding: .2rem .55rem;
@@ -83,68 +221,78 @@
       font-size: .75rem;
       font-weight: 600;
     }
-    .badge-alert  { background: #fde8d0; color: #c0550a; }
-    .badge-quiet  { background: #e8f5ee; color: #2e8b57; }
-    .badge-zero   { background: #eee;    color: #999; }
+    .badge-alert { background: var(--badge-alert-bg); color: var(--accent); }
+    .badge-quiet { background: var(--badge-quiet-bg); color: var(--accent-green); }
+    .badge-zero  { background: var(--badge-zero-bg);  color: var(--badge-zero-text); }
 
+    /* ── Cat pills ─────────────────────────────────────────────────────────── */
     .cat-pill {
       display: inline-block;
-      background: #fff3e8;
-      border: 1px solid #f5d5b8;
+      background: var(--bg-pill);
+      border: 1px solid var(--border-pill);
       border-radius: 8px;
       padding: .2rem .6rem;
       font-size: .82rem;
       margin: .1rem .15rem .1rem 0;
     }
-    .cat-pill a { color: #c0550a; text-decoration: none; }
+    .cat-pill a { color: var(--accent); text-decoration: none; }
     .cat-pill a:hover { text-decoration: underline; }
 
+    /* ── Config strip ──────────────────────────────────────────────────────── */
     .countdown { font-variant-numeric: tabular-nums; }
 
     .config-strip {
-      background: #fff;
-      border: 1px solid #f0e0d0;
+      background: var(--bg-config);
+      border: 1px solid var(--border);
       border-radius: 10px;
       padding: .75rem 1.25rem;
       margin-bottom: 1.5rem;
       font-size: .88rem;
-      color: #555;
+      color: var(--text);
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: .4rem;
+      transition: background .2s;
     }
-    .config-label { color: #999; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
-    .config-sep   { color: #ddd; }
-    .config-edit  { margin-left: auto; color: #c0550a; text-decoration: none; font-size: .8rem; }
+    .config-label { color: var(--text-label); font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .config-sep   { color: var(--text-sep); }
+    .config-edit  { margin-left: auto; color: var(--accent); text-decoration: none; font-size: .8rem; }
     .config-edit:hover { text-decoration: underline; }
     .email-tag {
-      background: #fff3e8;
-      border: 1px solid #f5d5b8;
+      background: var(--bg-email);
+      border: 1px solid var(--border-pill);
       border-radius: 6px;
       padding: .1rem .5rem;
       font-size: .83rem;
       font-family: monospace;
     }
 
+    /* ── Misc ──────────────────────────────────────────────────────────────── */
     .empty-state {
       text-align: center;
       padding: 3rem;
-      color: #aaa;
+      color: var(--text-sub);
       font-size: .95rem;
     }
 
     .wrapper { max-width: 900px; margin: 0 auto; }
     .table-wrapper { margin-bottom: 2rem; }
 
-    .ts-rel { color: #aaa; font-size: .8rem; }
+    .ts-rel { color: var(--text-sub); font-size: .8rem; }
     .ts-abs { font-size: .88rem; }
 
     #status-bar {
       text-align: center;
       font-size: .8rem;
-      color: #bbb;
+      color: var(--text-sub);
       margin-top: 2rem;
+    }
+    #status-bar code {
+      background: var(--bg-card);
+      padding: .1rem .35rem;
+      border-radius: 4px;
+      font-size: .78rem;
     }
   </style>
 </head>
@@ -154,7 +302,33 @@
   <header>
     <h1>🐱 Cat Alert Status</h1>
     <p>Monitoring <a href="https://www.arthuranimalrescue.com/adoptables" target="_blank">Arthur Animal Rescue</a> every 15 minutes for cats ≤ 12 months</p>
+    <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙 Dark</button>
   </header>
+
+  <!-- Paused warning banner -->
+  <div id="paused-banner">⛔ Alerts are PAUSED — no emails will be sent until resumed.</div>
+
+  <!-- Control buttons -->
+  <div class="controls">
+    <a class="btn btn-stop"
+       href="https://github.com/Vashtag/CE/actions/workflows/emergency_stop.yml"
+       target="_blank"
+       title="Opens GitHub Actions to run the Emergency Stop workflow">
+      🛑 Emergency Stop
+    </a>
+    <a class="btn btn-resume"
+       href="https://github.com/Vashtag/CE/actions/workflows/resume_alerts.yml"
+       target="_blank"
+       title="Opens GitHub Actions to resume alerts">
+      ▶ Resume Alerts
+    </a>
+    <a class="btn btn-check"
+       href="https://github.com/Vashtag/CE/actions/workflows/cat_alert.yml"
+       target="_blank"
+       title="Opens GitHub Actions to run a check now">
+      🔍 Run Check Now
+    </a>
+  </div>
 
   <!-- Summary cards -->
   <div class="cards">
@@ -207,8 +381,26 @@
 </div>
 
 <script>
-  const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+  const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 
+  /* ── Dark mode ──────────────────────────────────────────────────────────── */
+  function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    const btn = document.getElementById('theme-toggle');
+    btn.textContent = theme === 'dark' ? '☀️ Light' : '🌙 Dark';
+  }
+
+  function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    applyTheme(next);
+    localStorage.setItem('cat-alert-theme', next);
+  }
+
+  // Restore saved preference on load
+  applyTheme(localStorage.getItem('cat-alert-theme') || 'light');
+
+  /* ── Formatting helpers ─────────────────────────────────────────────────── */
   function fmtRelative(isoStr) {
     const diff = Math.round((Date.now() - new Date(isoStr)) / 1000);
     if (diff <  90)  return `${diff}s ago`;
@@ -218,8 +410,7 @@
   }
 
   function fmtAbs(isoStr) {
-    const d = new Date(isoStr);
-    return d.toLocaleString(undefined, {
+    return new Date(isoStr).toLocaleString(undefined, {
       month: 'short', day: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
@@ -232,6 +423,7 @@
     return `${Math.floor(s / 60)}m ${s % 60}s`;
   }
 
+  /* ── State ──────────────────────────────────────────────────────────────── */
   let lastTimestamp = null;
 
   function updateCountdown() {
@@ -241,12 +433,11 @@
     document.getElementById('val-next').textContent = fmtCountdown(remaining);
   }
 
+  /* ── Render log ─────────────────────────────────────────────────────────── */
   function render(log) {
-    // log is newest-first after we reverse it
     const entries = [...log].reverse();
     lastTimestamp = entries.length ? entries[0].timestamp : null;
 
-    // Summary cards
     const totalAlerts = log.reduce((s, e) => s + e.alerts_sent, 0);
     document.getElementById('val-total').textContent  = log.length;
     document.getElementById('val-alerts').textContent = totalAlerts;
@@ -257,7 +448,6 @@
       updateCountdown();
     }
 
-    // Table
     if (!entries.length) {
       document.getElementById('table-container').innerHTML =
         '<div class="empty-state">No checks recorded yet — the first run will appear here once the workflow runs.</div>';
@@ -267,12 +457,15 @@
     const rows = entries.map(e => {
       const hasAlerts = e.alerts_sent > 0;
       const noCats    = e.total_on_page === 0;
+      const paused    = e.paused === true;
 
-      const badge = hasAlerts
-        ? `<span class="badge badge-alert">🔔 ${e.alerts_sent} alert${e.alerts_sent > 1 ? 's' : ''}</span>`
-        : noCats
-          ? `<span class="badge badge-zero">⚠️ 0 cats</span>`
-          : `<span class="badge badge-quiet">✓ quiet</span>`;
+      const badge = paused
+        ? `<span class="badge badge-zero">⛔ paused</span>`
+        : hasAlerts
+          ? `<span class="badge badge-alert">🔔 ${e.alerts_sent} alert${e.alerts_sent > 1 ? 's' : ''}</span>`
+          : noCats
+            ? `<span class="badge badge-zero">⚠️ 0 cats</span>`
+            : `<span class="badge badge-quiet">✓ quiet</span>`;
 
       const catPills = (e.alerted_cats || []).map(c => {
         const age = c.age_months != null ? `${c.age_months}mo` : '?';
@@ -303,19 +496,28 @@
       </table>`;
   }
 
+  /* ── Render config ──────────────────────────────────────────────────────── */
   function renderConfig(cfg) {
     const emails = cfg.notify_emails || [];
     document.getElementById('cfg-emails').innerHTML = emails.length
       ? emails.map(e => `<span class="email-tag">${e}</span>`).join(' ')
-      : '<em style="color:#bbb">not set</em>';
+      : '<em style="color:var(--text-sub)">not set</em>';
     document.getElementById('cfg-age').textContent =
       `≤ ${cfg.max_age_months ?? 12} months`;
     document.getElementById('cfg-interval').textContent =
       `every ${cfg.check_interval_minutes ?? 15} min`;
+
+    // Show/hide paused banner
+    const banner = document.getElementById('paused-banner');
+    if (cfg.paused === true) {
+      banner.classList.add('visible');
+    } else {
+      banner.classList.remove('visible');
+    }
   }
 
+  /* ── Load data ──────────────────────────────────────────────────────────── */
   async function load() {
-    // Fetch log and config in parallel
     const t = Date.now();
     const [logRes, cfgRes] = await Promise.allSettled([
       fetch('./check_log.json?t=' + t),
@@ -334,13 +536,8 @@
     }
   }
 
-  // Initial load
   load();
-
-  // Refresh data every 60 seconds
   setInterval(load, 60_000);
-
-  // Update countdown every second
   setInterval(updateCountdown, 1_000);
 </script>
 </body>

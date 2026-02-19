@@ -73,24 +73,25 @@ def save_known(known: dict) -> None:
         json.dump(known, f, indent=2, sort_keys=True)
 
 
-def append_log(total_on_page: int, alerted: list[dict]) -> None:
+def append_log(total_on_page: int, alerted: list[dict], paused: bool = False) -> None:
     """Append one run record to check_log.json, keeping the last MAX_LOG_ENTRIES."""
     from datetime import datetime, timezone
     log: list[dict] = []
     if LOG_FILE.exists():
         with open(LOG_FILE) as f:
             log = json.load(f)
-    log.append(
-        {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "total_on_page": total_on_page,
-            "alerts_sent": len(alerted),
-            "alerted_cats": [
-                {"name": c["name"], "age_months": c["age_months"], "url": c["url"]}
-                for c in alerted
-            ],
-        }
-    )
+    entry: dict = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "total_on_page": total_on_page,
+        "alerts_sent": len(alerted),
+        "alerted_cats": [
+            {"name": c["name"], "age_months": c["age_months"], "url": c["url"]}
+            for c in alerted
+        ],
+    }
+    if paused:
+        entry["paused"] = True
+    log.append(entry)
     log = log[-MAX_LOG_ENTRIES:]  # trim oldest
     with open(LOG_FILE, "w") as f:
         json.dump(log, f, indent=2)
@@ -290,6 +291,12 @@ def main() -> None:
     cfg = load_config()
     max_age = cfg.get("max_age_months", 12)
     use_playwright = os.environ.get("USE_PLAYWRIGHT", "false").lower() == "true"
+
+    if cfg.get("paused", False):
+        print("[scraper] Alerts are PAUSED — skipping email notifications.")
+        append_log(total_on_page=0, alerted=[], paused=True)
+        print("[scraper] Log updated (paused run recorded).")
+        return
 
     print(f"[scraper] Fetching {ADOPTABLES_URL} ...")
     if use_playwright:
