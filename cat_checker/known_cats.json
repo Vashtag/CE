@@ -1,1 +1,122 @@
-{}
+{
+  "https://www.arthuranimalrescue.com/adoptables/abigail": {
+    "age_months": 44,
+    "first_seen": "2026-02-19T16:06:02.909588",
+    "name": "Abigail"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/carmine": {
+    "age_months": 43,
+    "first_seen": "2026-02-19T16:06:02.909524",
+    "name": "Carmine"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/cheeto": {
+    "age_months": 8,
+    "first_seen": "2026-02-19T16:06:02.909659",
+    "name": "Cheeto"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/chonk": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909548",
+    "name": "Chonk"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/dodge": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909572",
+    "name": "Dodge"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/eddie2": {
+    "age_months": 7,
+    "first_seen": "2026-02-19T16:06:02.909666",
+    "name": "Eddie 2"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/elliotandrocket": {
+    "age_months": 33,
+    "first_seen": "2026-02-19T16:06:02.909580",
+    "name": "E & R"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/espurr": {
+    "age_months": 19,
+    "first_seen": "2026-02-19T16:06:02.909672",
+    "name": "Espurr"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/graham11": {
+    "age_months": 8,
+    "first_seen": "2026-02-19T16:06:02.909629",
+    "name": "Graham 1"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/icedtea": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909565",
+    "name": "Iced Tea"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/jack3": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909602",
+    "name": "Jersey Jack"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/katie2": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909608",
+    "name": "Katie 2"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/kitty": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909519",
+    "name": "Kitty"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/miloandpumpkin4": {
+    "age_months": 105,
+    "first_seen": "2026-02-19T16:06:02.909646",
+    "name": "M & P"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/mimi": {
+    "age_months": 19,
+    "first_seen": "2026-02-19T16:06:02.909615",
+    "name": "Mimi"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/molly5": {
+    "age_months": 33,
+    "first_seen": "2026-02-19T16:06:02.909639",
+    "name": "Molly"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/queencharlotte": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909530",
+    "name": "Charlotte"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/queenvic": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909534",
+    "name": "Victoria"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/raven5": {
+    "age_months": 19,
+    "first_seen": "2026-02-19T16:06:02.909595",
+    "name": "Raven"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/smokey3": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909622",
+    "name": "Smokey 3"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/steve": {
+    "age_months": 7,
+    "first_seen": "2026-02-19T16:06:02.909557",
+    "name": "Steve"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/twinkle": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909653",
+    "name": "Twinkle"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/warden": {
+    "age_months": 43,
+    "first_seen": "2026-02-19T16:06:02.909539",
+    "name": "Warden"
+  },
+  "https://www.arthuranimalrescue.com/meet-the-team": {
+    "age_months": null,
+    "first_seen": "2026-02-19T16:06:02.909502",
+    "name": "the Team"
+  }
+}
