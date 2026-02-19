@@ -147,9 +147,11 @@ def fetch_html_playwright() -> str:
             args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
         )
         page = browser.new_page(extra_http_headers=BROWSER_HEADERS)
-        page.goto(ADOPTABLES_URL, wait_until="networkidle", timeout=45_000)
-        # Give Wix gallery a moment to fully render
-        page.wait_for_timeout(3_000)
+        # "networkidle" times out on Wix — the site fires constant background
+        # requests (analytics, ads). "load" fires once the main document is ready;
+        # the extra wait gives JS time to render the cat cards.
+        page.goto(ADOPTABLES_URL, wait_until="load", timeout=45_000)
+        page.wait_for_timeout(5_000)
         html = page.content()
         browser.close()
         return html
