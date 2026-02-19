@@ -165,26 +165,47 @@ def parse_cats(html: str) -> list[dict]:
         )
 
     # ── Strategy 1: Wix Pro Gallery / Repeater items ──
-    # Wix renders gallery items with data-hook="item-container" or
-    # individual repeater cells with data-testid containing the item slug.
-    for item in soup.select('[data-hook="item-container"], [data-testid*="item"]'):
+    # Covers the most common Wix widget types used for pet galleries.
+    WIX_SELECTORS = (
+        '[data-hook="item-container"],'
+        '[data-hook="repeater-item-wrapper"],'
+        '[data-hook="wix-repeater-container"] > *,'
+        '[data-testid*="galleryItem"],'
+        '[data-testid*="item-container"],'
+        '[class*="gallery-item"],'
+        '[class*="galleryItem"],'
+        '[class*="repeater-item"]'
+    )
+    for item in soup.select(WIX_SELECTORS):
         text = item.get_text(" ", strip=True)
-        age_months = parse_age_months(text)
         link = item.find("a", href=True)
         if link:
             href = link["href"]
             full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
             add(href, text[:80], text, full_url)
 
-    # ── Strategy 2: Any <a> whose surrounding block has an age pattern ──
+    # ── Strategy 2: Any <a> whose *immediate* parent block has an age pattern ──
+    # Kept intentionally strict: only look 2 levels up, and skip all
+    # obviously non-cat URL patterns so generic site pages are excluded.
+    _SKIP_URL = [
+        "#", "mailto:", "tel:",
+        "instagram.com", "facebook.com", "tiktok.com", "twitter.com", "youtube.com",
+        "/about", "/contact", "/volunteer", "/foster", "/donate", "/home",
+        "/privacy", "/terms", "/faq", "/news", "/blog", "/gallery",
+        "/shop", "/events", "/resources", "/team", "/staff", "/adopt-process",
+        "/surrender", "/lost", "/found", "/services",
+    ]
     if not cats:
         for a in soup.find_all("a", href=True):
             href = a["href"]
-            if any(skip in href for skip in ["#", "mailto:", "tel:", "instagram.com", "facebook.com", "tiktok.com"]):
+            if any(skip in href for skip in _SKIP_URL):
                 continue
-            # Look at the parent container text for age info
-            container = a.find_parent(["article", "section", "div", "li"]) or a
-            text = container.get_text(" ", strip=True)
+            # Only look 2 levels up — avoids pulling in whole-page section text
+            container = a.parent or a
+            if container.name in ("body", "html"):
+                container = a
+            parent2 = container.parent if container.parent else container
+            text = parent2.get_text(" ", strip=True) if parent2 else container.get_text(" ", strip=True)
             if not re.search(r"(\d+\s*[-\s]?months?|\d+\s*[-\s]?years?|kitten)", text, re.I):
                 continue
             full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
