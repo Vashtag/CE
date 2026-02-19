@@ -8,7 +8,7 @@ on:
     #       Merge this PR into main/master before the schedule kicks in.
     # NOTE: If this is a private repo you may hit the 2,000 min/month free limit.
     #       Making the repo public gives unlimited minutes (secrets stay private).
-    - cron: '*/15 * * * *'
+    - cron: '*/30 * * * *'
 
   # Lets you trigger a test run manually from the Actions tab at any time.
   workflow_dispatch:

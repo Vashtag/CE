@@ -141,18 +141,9 @@
     .btn:hover  { filter: brightness(1.12); transform: translateY(-1px); }
     .btn:active { transform: translateY(0); filter: brightness(.95); }
 
-    .btn-stop {
-      background: #dc2626;
-      color: #fff;
-    }
-    .btn-resume {
-      background: var(--accent-green);
-      color: #fff;
-    }
-    .btn-check {
-      background: var(--accent-blue);
-      color: #fff;
-    }
+    .btn-stop   { background: #dc2626; color: #fff; }
+    .btn-resume { background: var(--accent-green); color: #fff; }
+    .btn-check  { background: var(--accent-blue); color: #fff; }
 
     /* ── Summary cards ─────────────────────────────────────────────────────── */
     .cards {
@@ -259,13 +250,36 @@
     .config-sep   { color: var(--text-sep); }
     .config-edit  { margin-left: auto; color: var(--accent); text-decoration: none; font-size: .8rem; }
     .config-edit:hover { text-decoration: underline; }
-    .email-tag {
-      background: var(--bg-email);
-      border: 1px solid var(--border-pill);
-      border-radius: 6px;
-      padding: .1rem .5rem;
-      font-size: .83rem;
-      font-family: monospace;
+
+    /* ── Known cats grid ───────────────────────────────────────────────────── */
+    .known-cats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: .75rem;
+      margin-bottom: 2rem;
+    }
+    .known-cat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: .85rem 1rem;
+      box-shadow: 0 1px 4px var(--shadow);
+      transition: background .2s, border-color .15s;
+    }
+    .known-cat-card:hover { border-color: var(--accent); }
+    .known-cat-card .cat-name {
+      font-weight: 600;
+      font-size: .95rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .known-cat-card .cat-name a { color: var(--text); text-decoration: none; }
+    .known-cat-card .cat-name a:hover { color: var(--accent); }
+    .known-cat-card .cat-meta {
+      font-size: .76rem;
+      color: var(--text-sub);
+      margin-top: .3rem;
     }
 
     /* ── Misc ──────────────────────────────────────────────────────────────── */
@@ -301,12 +315,12 @@
 
   <header>
     <h1>🐱 Cat Alert Status</h1>
-    <p>Monitoring <a href="https://www.arthuranimalrescue.com/adoptables" target="_blank">Arthur Animal Rescue</a> every 15 minutes for cats ≤ 12 months</p>
+    <p>Monitoring <a href="https://www.arthuranimalrescue.com/adoptables" target="_blank">Arthur Animal Rescue</a> every 30 minutes for new cats</p>
     <button id="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode">🌙 Dark</button>
   </header>
 
   <!-- Paused warning banner -->
-  <div id="paused-banner">⛔ Alerts are PAUSED — no emails will be sent until resumed.</div>
+  <div id="paused-banner">⛔ Alerts are PAUSED — no Discord alerts will be sent until resumed.</div>
 
   <!-- Control buttons -->
   <div class="controls">
@@ -348,24 +362,26 @@
       <div class="sub">since tracking started</div>
     </div>
     <div class="card green" id="card-alerts">
-      <div class="label">Alerts Sent</div>
+      <div class="label">New Cats Today</div>
       <div class="value" id="val-alerts">—</div>
-      <div class="sub">total emails sent</div>
+      <div class="sub" id="sub-alerts">Discord alerts today</div>
     </div>
   </div>
 
   <!-- Config strip -->
   <div class="config-strip" id="config-strip">
-    <span class="config-label">Notifying:</span>
-    <span id="cfg-emails">loading…</span>
-    <span class="config-sep">·</span>
-    <span class="config-label">Age limit:</span>
-    <span id="cfg-age">—</span>
-    <span class="config-sep">·</span>
     <span class="config-label">Interval:</span>
     <span id="cfg-interval">—</span>
     <span class="config-sep">·</span>
+    <span class="config-label">Status:</span>
+    <span id="cfg-status">—</span>
     <a href="https://github.com/Vashtag/CE/blob/main/cat_checker/config.json" target="_blank" class="config-edit">edit config.json ↗</a>
+  </div>
+
+  <!-- Alert summary -->
+  <div class="table-wrapper" id="alert-summary-wrapper" style="display:none">
+    <div class="section-title">🔔 Alert History</div>
+    <div id="alert-summary-container"></div>
   </div>
 
   <!-- Recent checks table -->
@@ -376,12 +392,20 @@
     </div>
   </div>
 
-  <div id="status-bar">Auto-refreshes every 60 seconds &nbsp;·&nbsp; Data from <code>check_log.json</code></div>
+  <!-- Known cats -->
+  <div class="table-wrapper">
+    <div class="section-title">🐾 Known Cats (<span id="known-count">0</span> tracked)</div>
+    <div id="known-cats-container">
+      <div class="empty-state">Loading…</div>
+    </div>
+  </div>
+
+  <div id="status-bar">Auto-refreshes every 60 seconds &nbsp;·&nbsp; Data from <code>check_log.json</code> &amp; <code>known_cats.json</code></div>
 
 </div>
 
 <script>
-  const CHECK_INTERVAL_MS = 15 * 60 * 1000;
+  const CHECK_INTERVAL_MS = 30 * 60 * 1000;
 
   /* ── Dark mode ──────────────────────────────────────────────────────────── */
   function applyTheme(theme) {
@@ -397,7 +421,6 @@
     localStorage.setItem('cat-alert-theme', next);
   }
 
-  // Restore saved preference on load
   applyTheme(localStorage.getItem('cat-alert-theme') || 'light');
 
   /* ── Formatting helpers ─────────────────────────────────────────────────── */
@@ -416,11 +439,21 @@
     });
   }
 
+  function fmtDate(isoStr) {
+    return new Date(isoStr).toLocaleDateString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric',
+    });
+  }
+
   function fmtCountdown(ms) {
     if (ms <= 0) return 'any moment';
     const s = Math.round(ms / 1000);
     if (s < 60) return `${s}s`;
     return `${Math.floor(s / 60)}m ${s % 60}s`;
+  }
+
+  function catUrl(href) {
+    return href.startsWith('http') ? href : `https://www.arthuranimalrescue.com${href}`;
   }
 
   /* ── State ──────────────────────────────────────────────────────────────── */
@@ -438,9 +471,17 @@
     const entries = [...log].reverse();
     lastTimestamp = entries.length ? entries[0].timestamp : null;
 
-    const totalAlerts = log.reduce((s, e) => s + e.alerts_sent, 0);
-    document.getElementById('val-total').textContent  = log.length;
-    document.getElementById('val-alerts').textContent = totalAlerts;
+    // Total checks
+    document.getElementById('val-total').textContent = log.length;
+
+    // New cats today
+    const todayStr = new Date().toDateString();
+    const todayAlerts = log
+      .filter(e => new Date(e.timestamp).toDateString() === todayStr)
+      .reduce((s, e) => s + e.alerts_sent, 0);
+    document.getElementById('val-alerts').textContent = todayAlerts;
+    document.getElementById('sub-alerts').textContent =
+      todayAlerts === 1 ? '1 new cat today' : `${todayAlerts} new cats today`;
 
     if (lastTimestamp) {
       document.getElementById('val-last').textContent = fmtRelative(lastTimestamp);
@@ -448,9 +489,43 @@
       updateCountdown();
     }
 
+    // Alert history section — only entries that triggered alerts
+    const alertEntries = entries.filter(e => e.alerts_sent > 0);
+    const alertWrapper = document.getElementById('alert-summary-wrapper');
+    if (alertEntries.length) {
+      alertWrapper.style.display = '';
+      const rows = alertEntries.map(e => {
+        const pills = (e.alerted_cats || []).map(c => {
+          const url = c.url || catUrl(c.name);
+          return `<span class="cat-pill"><a href="${url}" target="_blank">${c.name}</a></span>`;
+        }).join('');
+        return `
+          <tr>
+            <td>
+              <div class="ts-abs">${fmtAbs(e.timestamp)}</div>
+              <div class="ts-rel">${fmtRelative(e.timestamp)}</div>
+            </td>
+            <td><span class="badge badge-alert">+${e.alerts_sent} new</span></td>
+            <td>${pills}</td>
+          </tr>`;
+      }).join('');
+      document.getElementById('alert-summary-container').innerHTML = `
+        <table>
+          <thead><tr>
+            <th>When</th>
+            <th>New cats</th>
+            <th>Who</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    } else {
+      alertWrapper.style.display = 'none';
+    }
+
+    // Recent checks table
     if (!entries.length) {
       document.getElementById('table-container').innerHTML =
-        '<div class="empty-state">No checks recorded yet — the first run will appear here once the workflow runs.</div>';
+        '<div class="empty-state">No checks recorded yet — will appear after the first workflow run.</div>';
       return;
     }
 
@@ -462,14 +537,14 @@
       const badge = paused
         ? `<span class="badge badge-zero">⛔ paused</span>`
         : hasAlerts
-          ? `<span class="badge badge-alert">🔔 ${e.alerts_sent} alert${e.alerts_sent > 1 ? 's' : ''}</span>`
+          ? `<span class="badge badge-alert">🔔 ${e.alerts_sent} new</span>`
           : noCats
             ? `<span class="badge badge-zero">⚠️ 0 cats</span>`
             : `<span class="badge badge-quiet">✓ quiet</span>`;
 
       const catPills = (e.alerted_cats || []).map(c => {
-        const age = c.age_months != null ? `${c.age_months}mo` : '?';
-        return `<span class="cat-pill"><a href="${c.url}" target="_blank">${c.name}</a> <small>${age}</small></span>`;
+        const url = c.url || catUrl(c.name);
+        return `<span class="cat-pill"><a href="${url}" target="_blank">${c.name}</a></span>`;
       }).join('');
 
       return `
@@ -487,7 +562,7 @@
       <table>
         <thead>
           <tr>
-            <th>Time (UTC local)</th>
+            <th>Time</th>
             <th>Cats on page</th>
             <th>Result</th>
           </tr>
@@ -497,23 +572,12 @@
   }
 
   /* ── Render config ──────────────────────────────────────────────────────── */
-  function maskEmail(email) {
-    const [local, domain] = email.split('@');
-    if (!domain) return '****';
-    return local[0] + '*'.repeat(Math.max(local.length - 1, 4)) + '@' + domain;
-  }
-
   function renderConfig(cfg) {
-    const emails = cfg.notify_emails || [];
-    document.getElementById('cfg-emails').innerHTML = emails.length
-      ? emails.map(e => `<span class="email-tag">${maskEmail(e)}</span>`).join(' ')
-      : '<em style="color:var(--text-sub)">not set</em>';
-    document.getElementById('cfg-age').textContent =
-      `≤ ${cfg.max_age_months ?? 12} months`;
     document.getElementById('cfg-interval').textContent =
-      `every ${cfg.check_interval_minutes ?? 15} min`;
+      `every ${cfg.check_interval_minutes ?? 30} min`;
+    document.getElementById('cfg-status').textContent =
+      cfg.paused ? '⛔ Paused' : '✅ Active';
 
-    // Show/hide paused banner
     const banner = document.getElementById('paused-banner');
     if (cfg.paused === true) {
       banner.classList.add('visible');
@@ -522,12 +586,45 @@
     }
   }
 
+  /* ── Render known cats ──────────────────────────────────────────────────── */
+  function renderKnownCats(known) {
+    const entries = Object.entries(known);
+    document.getElementById('known-count').textContent = entries.length;
+
+    if (!entries.length) {
+      document.getElementById('known-cats-container').innerHTML =
+        '<div class="empty-state">No cats tracked yet — will populate after the first successful check.</div>';
+      return;
+    }
+
+    // Sort by first_seen descending (newest first)
+    entries.sort((a, b) => {
+      const ta = a[1].first_seen || '';
+      const tb = b[1].first_seen || '';
+      return tb.localeCompare(ta);
+    });
+
+    const cards = entries.map(([href, cat]) => {
+      const url = catUrl(href);
+      const seen = cat.first_seen ? `First seen ${fmtDate(cat.first_seen)}` : '';
+      return `
+        <div class="known-cat-card">
+          <div class="cat-name"><a href="${url}" target="_blank">${cat.name || href}</a></div>
+          ${seen ? `<div class="cat-meta">${seen}</div>` : ''}
+        </div>`;
+    }).join('');
+
+    document.getElementById('known-cats-container').innerHTML =
+      `<div class="known-cats-grid">${cards}</div>`;
+  }
+
   /* ── Load data ──────────────────────────────────────────────────────────── */
   async function load() {
     const t = Date.now();
-    const [logRes, cfgRes] = await Promise.allSettled([
+    const [logRes, cfgRes, knownRes] = await Promise.allSettled([
       fetch('./check_log.json?t=' + t),
       fetch('./config.json?t=' + t),
+      fetch('./known_cats.json?t=' + t),
     ]);
 
     if (logRes.status === 'fulfilled' && logRes.value.ok) {
@@ -539,6 +636,13 @@
 
     if (cfgRes.status === 'fulfilled' && cfgRes.value.ok) {
       renderConfig(await cfgRes.value.json());
+    }
+
+    if (knownRes.status === 'fulfilled' && knownRes.value.ok) {
+      renderKnownCats(await knownRes.value.json());
+    } else {
+      document.getElementById('known-cats-container').innerHTML =
+        '<div class="empty-state">Could not load known_cats.json.</div>';
     }
   }
 
