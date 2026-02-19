@@ -76,7 +76,7 @@ jobs:
         run: |
           git config user.name  "cat-alert-bot"
           git config user.email "actions@github.com"
-          git add cat_checker/known_cats.json
+          git add cat_checker/known_cats.json cat_checker/check_log.json
           # Only commit if the file actually changed
           if git diff --staged --quiet; then
             echo "No state changes to commit."

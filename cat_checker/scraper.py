@@ -15,6 +15,8 @@ from pathlib import Path
 
 ADOPTABLES_URL = "https://www.arthuranimalrescue.com/adoptables"
 STATE_FILE = Path(__file__).parent / "known_cats.json"
+LOG_FILE   = Path(__file__).parent / "check_log.json"
+MAX_LOG_ENTRIES = 100
 
 # ── Age parsing ──────────────────────────────────────────────────────────────
 
@@ -61,6 +63,29 @@ def load_known() -> dict:
 def save_known(known: dict) -> None:
     with open(STATE_FILE, "w") as f:
         json.dump(known, f, indent=2, sort_keys=True)
+
+
+def append_log(total_on_page: int, alerted: list[dict]) -> None:
+    """Append one run record to check_log.json, keeping the last MAX_LOG_ENTRIES."""
+    from datetime import datetime, timezone
+    log: list[dict] = []
+    if LOG_FILE.exists():
+        with open(LOG_FILE) as f:
+            log = json.load(f)
+    log.append(
+        {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "total_on_page": total_on_page,
+            "alerts_sent": len(alerted),
+            "alerted_cats": [
+                {"name": c["name"], "age_months": c["age_months"], "url": c["url"]}
+                for c in alerted
+            ],
+        }
+    )
+    log = log[-MAX_LOG_ENTRIES:]  # trim oldest
+    with open(LOG_FILE, "w") as f:
+        json.dump(log, f, indent=2)
 
 
 # ── Scraping ─────────────────────────────────────────────────────────────────
@@ -291,6 +316,9 @@ def main() -> None:
         send_email(new_matches)
     else:
         print("[scraper] No new young cats found. Nothing to send.")
+
+    append_log(total_on_page=len(cats), alerted=new_matches)
+    print("[scraper] Log updated.")
 
 
 if __name__ == "__main__":

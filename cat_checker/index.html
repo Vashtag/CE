@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cat Alert Status</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fdf6ee;
+      color: #333;
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 { font-size: 2rem; color: #c0550a; }
+    header p  { color: #777; margin-top: .3rem; font-size: .95rem; }
+
+    .cards {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      padding: 1.25rem 1.75rem;
+      min-width: 180px;
+      text-align: center;
+    }
+    .card .label { font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; color: #999; }
+    .card .value { font-size: 1.6rem; font-weight: 700; color: #c0550a; margin-top: .2rem; }
+    .card .sub   { font-size: .8rem; color: #aaa; margin-top: .15rem; }
+
+    .card.green .value { color: #2e8b57; }
+    .card.blue  .value { color: #2563eb; }
+
+    .section-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: .75rem;
+      border-bottom: 2px solid #f0e0d0;
+      padding-bottom: .4rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,.07);
+      font-size: .9rem;
+    }
+    thead th {
+      background: #f5ebe0;
+      color: #666;
+      font-weight: 600;
+      padding: .7rem 1rem;
+      text-align: left;
+      font-size: .78rem;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+    tbody tr { border-top: 1px solid #f0e8df; }
+    tbody tr:hover { background: #fdf0e5; }
+    tbody td { padding: .65rem 1rem; vertical-align: top; }
+
+    .badge {
+      display: inline-block;
+      padding: .2rem .55rem;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 600;
+    }
+    .badge-alert  { background: #fde8d0; color: #c0550a; }
+    .badge-quiet  { background: #e8f5ee; color: #2e8b57; }
+    .badge-zero   { background: #eee;    color: #999; }
+
+    .cat-pill {
+      display: inline-block;
+      background: #fff3e8;
+      border: 1px solid #f5d5b8;
+      border-radius: 8px;
+      padding: .2rem .6rem;
+      font-size: .82rem;
+      margin: .1rem .15rem .1rem 0;
+    }
+    .cat-pill a { color: #c0550a; text-decoration: none; }
+    .cat-pill a:hover { text-decoration: underline; }
+
+    .countdown { font-variant-numeric: tabular-nums; }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: #aaa;
+      font-size: .95rem;
+    }
+
+    .wrapper { max-width: 900px; margin: 0 auto; }
+    .table-wrapper { margin-bottom: 2rem; }
+
+    .ts-rel { color: #aaa; font-size: .8rem; }
+    .ts-abs { font-size: .88rem; }
+
+    #status-bar {
+      text-align: center;
+      font-size: .8rem;
+      color: #bbb;
+      margin-top: 2rem;
+    }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <h1>🐱 Cat Alert Status</h1>
+    <p>Monitoring <a href="https://www.arthuranimalrescue.com/adoptables" target="_blank">Arthur Animal Rescue</a> every 15 minutes for cats ≤ 12 months</p>
+  </header>
+
+  <!-- Summary cards -->
+  <div class="cards">
+    <div class="card" id="card-last">
+      <div class="label">Last Check</div>
+      <div class="value" id="val-last">—</div>
+      <div class="sub" id="sub-last">—</div>
+    </div>
+    <div class="card" id="card-next">
+      <div class="label">Next Check In</div>
+      <div class="value countdown" id="val-next">—</div>
+      <div class="sub">approx.</div>
+    </div>
+    <div class="card blue" id="card-total">
+      <div class="label">Total Checks</div>
+      <div class="value" id="val-total">—</div>
+      <div class="sub">since tracking started</div>
+    </div>
+    <div class="card green" id="card-alerts">
+      <div class="label">Alerts Sent</div>
+      <div class="value" id="val-alerts">—</div>
+      <div class="sub">total emails sent</div>
+    </div>
+  </div>
+
+  <!-- Recent checks table -->
+  <div class="table-wrapper">
+    <div class="section-title">Recent Checks (newest first)</div>
+    <div id="table-container">
+      <div class="empty-state">Loading…</div>
+    </div>
+  </div>
+
+  <div id="status-bar">Auto-refreshes every 60 seconds &nbsp;·&nbsp; Data from <code>check_log.json</code></div>
+
+</div>
+
+<script>
+  const CHECK_INTERVAL_MS = 15 * 60 * 1000; // 15 minutes
+
+  function fmtRelative(isoStr) {
+    const diff = Math.round((Date.now() - new Date(isoStr)) / 1000);
+    if (diff <  90)  return `${diff}s ago`;
+    if (diff < 3600) return `${Math.round(diff / 60)}m ago`;
+    if (diff < 86400)return `${Math.round(diff / 3600)}h ago`;
+    return `${Math.round(diff / 86400)}d ago`;
+  }
+
+  function fmtAbs(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleString(undefined, {
+      month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  function fmtCountdown(ms) {
+    if (ms <= 0) return 'any moment';
+    const s = Math.round(ms / 1000);
+    if (s < 60) return `${s}s`;
+    return `${Math.floor(s / 60)}m ${s % 60}s`;
+  }
+
+  let lastTimestamp = null;
+
+  function updateCountdown() {
+    if (!lastTimestamp) return;
+    const elapsed = Date.now() - new Date(lastTimestamp);
+    const remaining = CHECK_INTERVAL_MS - elapsed;
+    document.getElementById('val-next').textContent = fmtCountdown(remaining);
+  }
+
+  function render(log) {
+    // log is newest-first after we reverse it
+    const entries = [...log].reverse();
+    lastTimestamp = entries.length ? entries[0].timestamp : null;
+
+    // Summary cards
+    const totalAlerts = log.reduce((s, e) => s + e.alerts_sent, 0);
+    document.getElementById('val-total').textContent  = log.length;
+    document.getElementById('val-alerts').textContent = totalAlerts;
+
+    if (lastTimestamp) {
+      document.getElementById('val-last').textContent = fmtRelative(lastTimestamp);
+      document.getElementById('sub-last').textContent = fmtAbs(lastTimestamp);
+      updateCountdown();
+    }
+
+    // Table
+    if (!entries.length) {
+      document.getElementById('table-container').innerHTML =
+        '<div class="empty-state">No checks recorded yet — the first run will appear here once the workflow runs.</div>';
+      return;
+    }
+
+    const rows = entries.map(e => {
+      const hasAlerts = e.alerts_sent > 0;
+      const noCats    = e.total_on_page === 0;
+
+      const badge = hasAlerts
+        ? `<span class="badge badge-alert">🔔 ${e.alerts_sent} alert${e.alerts_sent > 1 ? 's' : ''}</span>`
+        : noCats
+          ? `<span class="badge badge-zero">⚠️ 0 cats</span>`
+          : `<span class="badge badge-quiet">✓ quiet</span>`;
+
+      const catPills = (e.alerted_cats || []).map(c => {
+        const age = c.age_months != null ? `${c.age_months}mo` : '?';
+        return `<span class="cat-pill"><a href="${c.url}" target="_blank">${c.name}</a> <small>${age}</small></span>`;
+      }).join('');
+
+      return `
+        <tr>
+          <td>
+            <div class="ts-abs">${fmtAbs(e.timestamp)}</div>
+            <div class="ts-rel">${fmtRelative(e.timestamp)}</div>
+          </td>
+          <td>${e.total_on_page}</td>
+          <td>${badge}${catPills ? '<br><div style="margin-top:.4rem">' + catPills + '</div>' : ''}</td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('table-container').innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Time (UTC local)</th>
+            <th>Cats on page</th>
+            <th>Result</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  async function load() {
+    try {
+      const r = await fetch('./check_log.json?t=' + Date.now());
+      if (!r.ok) throw new Error(r.status);
+      const log = await r.json();
+      render(log);
+    } catch (err) {
+      document.getElementById('table-container').innerHTML =
+        `<div class="empty-state">Could not load check_log.json (${err}).<br>Make sure this page is served over HTTP/HTTPS, not opened as a local file.</div>`;
+    }
+  }
+
+  // Initial load
+  load();
+
+  // Refresh data every 60 seconds
+  setInterval(load, 60_000);
+
+  // Update countdown every second
+  setInterval(updateCountdown, 1_000);
+</script>
+</body>
+</html>
