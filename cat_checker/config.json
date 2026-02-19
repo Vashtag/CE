@@ -1,5 +1,4 @@
 {
-  "max_age_months": 12,
   "check_interval_minutes": 15,
   "paused": false
 }

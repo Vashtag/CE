@@ -268,19 +268,22 @@ def send_notification(new_cats: list[dict]) -> None:
 
     embeds = []
     for cat in new_cats:
-        age_label = f"{cat['age_months']} months" if cat["age_months"] else "age unknown"
+        # Show the raw date from the card (e.g. "July 19, 2025") — don't interpret it,
+        # since it may be a listing date, not a birth date. Let the user judge age.
+        date_match = _DATE_RE.search(cat.get("age_text", ""))
+        date_label = date_match.group(0).title() if date_match else "unknown"
         embeds.append({
             "title": cat["name"],
             "url": cat["url"],
             "color": 14711609,  # #E07B39 orange
             "fields": [
-                {"name": "Age", "value": age_label, "inline": True},
+                {"name": "Date on listing", "value": date_label, "inline": True},
             ],
         })
 
     plural = "s" if len(new_cats) > 1 else ""
     payload = {
-        "content": f"🐱 **New young cat{plural} at Arthur Animal Rescue! Be quick!**\n{ADOPTABLES_URL}",
+        "content": f"🐱 **New cat{plural} at Arthur Animal Rescue!**\n{ADOPTABLES_URL}",
         "embeds": embeds,
     }
 
@@ -293,7 +296,6 @@ def send_notification(new_cats: list[dict]) -> None:
 
 def main() -> None:
     cfg = load_config()
-    max_age = cfg.get("max_age_months", 12)
     use_playwright = os.environ.get("USE_PLAYWRIGHT", "false").lower() == "true"
 
     if cfg.get("paused", False):
@@ -326,12 +328,8 @@ def main() -> None:
             "age_months": cat["age_months"],
             "first_seen": __import__("datetime").datetime.utcnow().isoformat(),
         }
-        if cat["age_months"] is not None and cat["age_months"] <= max_age:
-            new_matches.append(cat)
-            print(f"[scraper] NEW young cat: {cat['name']} ({cat['age_months']} months)")
-        else:
-            age_label = f"{cat['age_months']} months" if cat["age_months"] else "unknown age"
-            print(f"[scraper] Skipping {cat['name']} ({age_label}) — too old or age unknown")
+        new_matches.append(cat)
+        print(f"[scraper] NEW cat: {cat['name']}")
 
     save_known(known)
 
@@ -339,7 +337,7 @@ def main() -> None:
         print(f"[scraper] Sending Discord notification for {len(new_matches)} new cat(s) ...")
         send_notification(new_matches)
     else:
-        print("[scraper] No new young cats found. Nothing to send.")
+        print("[scraper] No new cats found. Nothing to send.")
 
     append_log(total_on_page=len(cats), alerted=new_matches)
     print("[scraper] Log updated.")
