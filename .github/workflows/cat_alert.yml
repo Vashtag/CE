@@ -64,7 +64,7 @@ jobs:
       # 5. Run the scraper
       - name: Check for new young cats
         env:
-          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           # Set to "true" to force Playwright; "false" tries requests first (faster)
           USE_PLAYWRIGHT: 'true'
         run: python cat_checker/scraper.py

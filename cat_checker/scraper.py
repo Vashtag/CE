@@ -206,75 +206,33 @@ def parse_cats(html: str) -> list[dict]:
     return cats
 
 
-# ── Email ────────────────────────────────────────────────────────────────────
+# ── Discord notification ──────────────────────────────────────────────────────
 
-def send_email(new_cats: list[dict]) -> None:
-    import resend
-    resend.api_key = os.environ["RESEND_API_KEY"]
+def send_notification(new_cats: list[dict]) -> None:
+    import requests
+    webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
 
-    cfg = load_config()
-    recipients = cfg.get("notify_emails") or [
-        e.strip() for e in os.environ.get("NOTIFY_EMAILS", "").split(",") if e.strip()
-    ]
-    from_addr = cfg.get("from_email", "Cat Alert <onboarding@resend.dev>")
-
-    subject = f"New young cat(s) available at Arthur Animal Rescue! ({len(new_cats)} found)"
-
-    # Plain-text body
-    lines = [
-        "Hi! A new cat under 12 months was just posted on Arthur Animal Rescue.",
-        "",
-        "Adopt page: https://www.arthuranimalrescue.com/adoptables",
-        "",
-        "─" * 40,
-    ]
+    embeds = []
     for cat in new_cats:
         age_label = f"{cat['age_months']} months" if cat["age_months"] else "age unknown"
-        lines += [
-            f"Name : {cat['name']}",
-            f"Age  : {age_label}",
-            f"Link : {cat['url']}",
-            "",
-        ]
-    lines += ["─" * 40, "Good luck! 🐱"]
-    text_body = "\n".join(lines)
+        embeds.append({
+            "title": cat["name"],
+            "url": cat["url"],
+            "color": 14711609,  # #E07B39 orange
+            "fields": [
+                {"name": "Age", "value": age_label, "inline": True},
+            ],
+        })
 
-    # HTML body
-    cat_rows = ""
-    for cat in new_cats:
-        age_label = f"{cat['age_months']} months" if cat["age_months"] else "age unknown"
-        cat_rows += f"""
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold">{cat['name']}</td>
-          <td style="padding:8px;border-bottom:1px solid #eee">{age_label}</td>
-          <td style="padding:8px;border-bottom:1px solid #eee">
-            <a href="{cat['url']}">View profile</a>
-          </td>
-        </tr>"""
+    plural = "s" if len(new_cats) > 1 else ""
+    payload = {
+        "content": f"🐱 **New young cat{plural} at Arthur Animal Rescue! Be quick!**\n{ADOPTABLES_URL}",
+        "embeds": embeds,
+    }
 
-    html_body = f"""
-    <html><body style="font-family:sans-serif;max-width:600px;margin:auto">
-      <h2 style="color:#e07b39">New cat(s) at Arthur Animal Rescue!</h2>
-      <p>A cat under 12 months was just posted. Be quick!</p>
-      <table style="width:100%;border-collapse:collapse">
-        <tr style="background:#f5f5f5">
-          <th style="padding:8px;text-align:left">Name</th>
-          <th style="padding:8px;text-align:left">Age</th>
-          <th style="padding:8px;text-align:left">Link</th>
-        </tr>
-        {cat_rows}
-      </table>
-      <p><a href="{ADOPTABLES_URL}">View all adoptables →</a></p>
-    </body></html>"""
-
-    resend.Emails.send({
-        "from": from_addr,
-        "to": recipients,
-        "subject": subject,
-        "html": html_body,
-        "text": text_body,
-    })
-    print(f"[email] Sent via Resend to: {', '.join(recipients)}")
+    resp = requests.post(webhook_url, json=payload, timeout=10)
+    resp.raise_for_status()
+    print(f"[discord] Notification sent ({len(new_cats)} cat(s))")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
@@ -285,7 +243,7 @@ def main() -> None:
     use_playwright = os.environ.get("USE_PLAYWRIGHT", "false").lower() == "true"
 
     if cfg.get("paused", False):
-        print("[scraper] Alerts are PAUSED — skipping email notifications.")
+        print("[scraper] Alerts are PAUSED — skipping notifications.")
         append_log(total_on_page=0, alerted=[], paused=True)
         print("[scraper] Log updated (paused run recorded).")
         return
@@ -324,8 +282,8 @@ def main() -> None:
     save_known(known)
 
     if new_matches:
-        print(f"[scraper] Sending email for {len(new_matches)} new cat(s) ...")
-        send_email(new_matches)
+        print(f"[scraper] Sending Discord notification for {len(new_matches)} new cat(s) ...")
+        send_notification(new_matches)
     else:
         print("[scraper] No new young cats found. Nothing to send.")
 
