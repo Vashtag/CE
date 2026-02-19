@@ -1,1 +1,62 @@
-[]
+[
+  {
+    "timestamp": "2026-02-19T15:38:12.045890+00:00",
+    "total_on_page": 1,
+    "alerts_sent": 1,
+    "alerted_cats": [
+      {
+        "name": "The Cost of \"Free\" Kittens",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/about-5-1"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-02-19T15:45:17.469500+00:00",
+    "total_on_page": 8,
+    "alerts_sent": 7,
+    "alerted_cats": [
+      {
+        "name": "ABOUT US",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com"
+      },
+      {
+        "name": "ADOPT",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/adopt"
+      },
+      {
+        "name": "HOW TO HELP",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/how-to-help"
+      },
+      {
+        "name": "HOW WE HELP",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/how-we-help"
+      },
+      {
+        "name": "TNR",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/general-6"
+      },
+      {
+        "name": "Satellite Locations",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/satelite-locations"
+      },
+      {
+        "name": "Quarterly Updates",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/quarterly-updates-1"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-02-19T15:49:33.140777+00:00",
+    "total_on_page": 8,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  }
+]
