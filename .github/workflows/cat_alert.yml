@@ -20,7 +20,7 @@ permissions:
 # ── Job ──────────────────────────────────────────────────────────────────────
 jobs:
   check-for-cats:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # pinned: ubuntu-latest is now 24.04 which broke playwright deps (libasound2 renamed)
     timeout-minutes: 10
 
     steps:
