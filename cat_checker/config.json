@@ -1,0 +1,8 @@
+{
+  "notify_emails": [
+    "you@example.com",
+    "nicole@example.com"
+  ],
+  "max_age_months": 12,
+  "check_interval_minutes": 15
+}

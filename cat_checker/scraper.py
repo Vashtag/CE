@@ -13,10 +13,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from pathlib import Path
 
-ADOPTABLES_URL = "https://www.arthuranimalrescue.com/adoptables"
-STATE_FILE = Path(__file__).parent / "known_cats.json"
-LOG_FILE   = Path(__file__).parent / "check_log.json"
+ADOPTABLES_URL  = "https://www.arthuranimalrescue.com/adoptables"
+STATE_FILE      = Path(__file__).parent / "known_cats.json"
+LOG_FILE        = Path(__file__).parent / "check_log.json"
+CONFIG_FILE     = Path(__file__).parent / "config.json"
 MAX_LOG_ENTRIES = 100
+
+
+def load_config() -> dict:
+    if CONFIG_FILE.exists():
+        with open(CONFIG_FILE) as f:
+            return json.load(f)
+    return {}
 
 # ── Age parsing ──────────────────────────────────────────────────────────────
 
@@ -207,7 +215,10 @@ def parse_cats(html: str) -> list[dict]:
 def send_email(new_cats: list[dict]) -> None:
     gmail_user = os.environ["GMAIL_USER"]
     gmail_password = os.environ["GMAIL_APP_PASSWORD"]
-    recipients = [e.strip() for e in os.environ["NOTIFY_EMAILS"].split(",") if e.strip()]
+    cfg = load_config()
+    recipients = cfg.get("notify_emails") or [
+        e.strip() for e in os.environ.get("NOTIFY_EMAILS", "").split(",") if e.strip()
+    ]
 
     subject = f"New young cat(s) available at Arthur Animal Rescue! ({len(new_cats)} found)"
 
@@ -276,6 +287,8 @@ def send_email(new_cats: list[dict]) -> None:
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
+    cfg = load_config()
+    max_age = cfg.get("max_age_months", 12)
     use_playwright = os.environ.get("USE_PLAYWRIGHT", "false").lower() == "true"
 
     print(f"[scraper] Fetching {ADOPTABLES_URL} ...")
@@ -302,7 +315,7 @@ def main() -> None:
             "age_months": cat["age_months"],
             "first_seen": __import__("datetime").datetime.utcnow().isoformat(),
         }
-        if is_young_enough(cat["age_months"]):
+        if cat["age_months"] is not None and cat["age_months"] <= max_age:
             new_matches.append(cat)
             print(f"[scraper] NEW young cat: {cat['name']} ({cat['age_months']} months)")
         else:
