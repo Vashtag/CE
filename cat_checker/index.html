@@ -497,10 +497,16 @@
   }
 
   /* ── Render config ──────────────────────────────────────────────────────── */
+  function maskEmail(email) {
+    const [local, domain] = email.split('@');
+    if (!domain) return '****';
+    return local[0] + '*'.repeat(Math.max(local.length - 1, 4)) + '@' + domain;
+  }
+
   function renderConfig(cfg) {
     const emails = cfg.notify_emails || [];
     document.getElementById('cfg-emails').innerHTML = emails.length
-      ? emails.map(e => `<span class="email-tag">${e}</span>`).join(' ')
+      ? emails.map(e => `<span class="email-tag">${maskEmail(e)}</span>`).join(' ')
       : '<em style="color:var(--text-sub)">not set</em>';
     document.getElementById('cfg-age').textContent =
       `≤ ${cfg.max_age_months ?? 12} months`;
