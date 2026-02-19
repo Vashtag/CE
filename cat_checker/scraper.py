@@ -6,11 +6,6 @@ Checks the adoptables page every 15 min and emails when a new cat ≤ 12 months 
 import json
 import os
 import re
-import smtplib
-import ssl
-import sys
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
 
 ADOPTABLES_URL  = "https://www.arthuranimalrescue.com/adoptables"
@@ -214,12 +209,14 @@ def parse_cats(html: str) -> list[dict]:
 # ── Email ────────────────────────────────────────────────────────────────────
 
 def send_email(new_cats: list[dict]) -> None:
-    gmail_user = os.environ["GMAIL_USER"]
-    gmail_password = os.environ["GMAIL_APP_PASSWORD"]
+    import resend
+    resend.api_key = os.environ["RESEND_API_KEY"]
+
     cfg = load_config()
     recipients = cfg.get("notify_emails") or [
         e.strip() for e in os.environ.get("NOTIFY_EMAILS", "").split(",") if e.strip()
     ]
+    from_addr = cfg.get("from_email", "Cat Alert <onboarding@resend.dev>")
 
     subject = f"New young cat(s) available at Arthur Animal Rescue! ({len(new_cats)} found)"
 
@@ -270,19 +267,14 @@ def send_email(new_cats: list[dict]) -> None:
       <p><a href="{ADOPTABLES_URL}">View all adoptables →</a></p>
     </body></html>"""
 
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = gmail_user
-    msg["To"] = ", ".join(recipients)
-    msg.attach(MIMEText(text_body, "plain"))
-    msg.attach(MIMEText(html_body, "html"))
-
-    ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as server:
-        server.login(gmail_user, gmail_password)
-        server.sendmail(gmail_user, recipients, msg.as_string())
-
-    print(f"[email] Sent to: {', '.join(recipients)}")
+    resend.Emails.send({
+        "from": from_addr,
+        "to": recipients,
+        "subject": subject,
+        "html": html_body,
+        "text": text_body,
+    })
+    print(f"[email] Sent via Resend to: {', '.join(recipients)}")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────

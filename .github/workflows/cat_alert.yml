@@ -64,9 +64,7 @@ jobs:
       # 5. Run the scraper
       - name: Check for new young cats
         env:
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          NOTIFY_EMAILS: ${{ secrets.NOTIFY_EMAILS }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
           # Set to "true" to force Playwright; "false" tries requests first (faster)
           USE_PLAYWRIGHT: 'true'
         run: python cat_checker/scraper.py
