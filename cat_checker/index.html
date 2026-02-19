@@ -101,6 +101,32 @@
 
     .countdown { font-variant-numeric: tabular-nums; }
 
+    .config-strip {
+      background: #fff;
+      border: 1px solid #f0e0d0;
+      border-radius: 10px;
+      padding: .75rem 1.25rem;
+      margin-bottom: 1.5rem;
+      font-size: .88rem;
+      color: #555;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: .4rem;
+    }
+    .config-label { color: #999; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .config-sep   { color: #ddd; }
+    .config-edit  { margin-left: auto; color: #c0550a; text-decoration: none; font-size: .8rem; }
+    .config-edit:hover { text-decoration: underline; }
+    .email-tag {
+      background: #fff3e8;
+      border: 1px solid #f5d5b8;
+      border-radius: 6px;
+      padding: .1rem .5rem;
+      font-size: .83rem;
+      font-family: monospace;
+    }
+
     .empty-state {
       text-align: center;
       padding: 3rem;
@@ -152,6 +178,20 @@
       <div class="value" id="val-alerts">—</div>
       <div class="sub">total emails sent</div>
     </div>
+  </div>
+
+  <!-- Config strip -->
+  <div class="config-strip" id="config-strip">
+    <span class="config-label">Notifying:</span>
+    <span id="cfg-emails">loading…</span>
+    <span class="config-sep">·</span>
+    <span class="config-label">Age limit:</span>
+    <span id="cfg-age">—</span>
+    <span class="config-sep">·</span>
+    <span class="config-label">Interval:</span>
+    <span id="cfg-interval">—</span>
+    <span class="config-sep">·</span>
+    <a href="https://github.com/Vashtag/CE/blob/main/cat_checker/config.json" target="_blank" class="config-edit">edit config.json ↗</a>
   </div>
 
   <!-- Recent checks table -->
@@ -263,15 +303,34 @@
       </table>`;
   }
 
+  function renderConfig(cfg) {
+    const emails = cfg.notify_emails || [];
+    document.getElementById('cfg-emails').innerHTML = emails.length
+      ? emails.map(e => `<span class="email-tag">${e}</span>`).join(' ')
+      : '<em style="color:#bbb">not set</em>';
+    document.getElementById('cfg-age').textContent =
+      `≤ ${cfg.max_age_months ?? 12} months`;
+    document.getElementById('cfg-interval').textContent =
+      `every ${cfg.check_interval_minutes ?? 15} min`;
+  }
+
   async function load() {
-    try {
-      const r = await fetch('./check_log.json?t=' + Date.now());
-      if (!r.ok) throw new Error(r.status);
-      const log = await r.json();
-      render(log);
-    } catch (err) {
+    // Fetch log and config in parallel
+    const t = Date.now();
+    const [logRes, cfgRes] = await Promise.allSettled([
+      fetch('./check_log.json?t=' + t),
+      fetch('./config.json?t=' + t),
+    ]);
+
+    if (logRes.status === 'fulfilled' && logRes.value.ok) {
+      render(await logRes.value.json());
+    } else {
       document.getElementById('table-container').innerHTML =
-        `<div class="empty-state">Could not load check_log.json (${err}).<br>Make sure this page is served over HTTP/HTTPS, not opened as a local file.</div>`;
+        `<div class="empty-state">Could not load check_log.json.<br>Make sure this page is served over HTTP/HTTPS, not opened as a local file.</div>`;
+    }
+
+    if (cfgRes.status === 'fulfilled' && cfgRes.value.ok) {
+      renderConfig(await cfgRes.value.json());
     }
   }
 
