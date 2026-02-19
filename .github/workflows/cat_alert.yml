@@ -3,7 +3,7 @@ name: Cat Adoption Alert
 # ── Triggers ─────────────────────────────────────────────────────────────────
 on:
   schedule:
-    # Runs every 15 minutes, 24/7.
+    # Runs every 30 minutes, 24/7.
     # NOTE: GitHub only runs scheduled workflows from the repo's DEFAULT branch.
     #       Merge this PR into main/master before the schedule kicks in.
     # NOTE: If this is a private repo you may hit the 2,000 min/month free limit.

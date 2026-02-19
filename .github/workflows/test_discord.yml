@@ -1,0 +1,26 @@
+name: Test Discord Notification
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-discord:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Send test notification
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "content": "🧪 **Test notification from Cat Alert bot!**\nIf you can read this, Discord alerts are working correctly. ✅",
+              "embeds": [{
+                "title": "Test Cat",
+                "color": 14711609,
+                "fields": [
+                  { "name": "Status", "value": "Discord webhook is connected and working!", "inline": false }
+                ]
+              }]
+            }' \
+            "$DISCORD_WEBHOOK_URL" | grep -q "^204$" && echo "✅ Discord notification sent successfully." || echo "❌ Unexpected response from Discord."
