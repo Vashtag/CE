@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "timestamp": "2026-02-19T15:38:12.045890+00:00",
+    "total_on_page": 1,
+    "alerts_sent": 1,
+    "alerted_cats": [
+      {
+        "name": "The Cost of \"Free\" Kittens",
+        "age_months": 4,
+        "url": "https://www.arthuranimalrescue.com/about-5-1"
+      }
+    ]
+  }
+]
