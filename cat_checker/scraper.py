@@ -27,8 +27,11 @@ def parse_age_months(text: str) -> int | None:
     """
     Extract age in months from a free-form string.
     Returns None if no age pattern found.
-    Examples: "6 months old", "1 year", "2-year-old", "kitten" → 6, 12, 24, 4
+    Handles: "6 months old", "1 year", "2-year-old", "kitten",
+             and birth dates like "July 19, 2025" or "Jan 12, 2025".
     """
+    from datetime import datetime
+
     t = text.lower()
 
     # "kitten" with no explicit age → assume ~4 months (safely under limit)
@@ -44,6 +47,24 @@ def parse_age_months(text: str) -> int | None:
     y = re.search(r"(\d+)\s*[-\s]?years?", t)
     if y:
         return int(y.group(1)) * 12
+
+    # Birth date like "July 19, 2025" or "Jan 12, 2025"
+    date_m = re.search(
+        r"(january|february|march|april|may|june|july|august|september|"
+        r"october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)"
+        r"\s+(\d{1,2}),?\s+(\d{4})",
+        t,
+    )
+    if date_m:
+        try:
+            dob = datetime.strptime(
+                f"{date_m.group(1).capitalize()} {date_m.group(2)} {date_m.group(3)}",
+                "%B %d %Y",
+            )
+            now = datetime.now()
+            return max((now.year - dob.year) * 12 + (now.month - dob.month), 0)
+        except ValueError:
+            pass
 
     return None
 
@@ -134,14 +155,30 @@ def fetch_html_playwright() -> str:
         return html
 
 
+_DATE_RE = re.compile(
+    r"(january|february|march|april|may|june|july|august|september|"
+    r"october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)"
+    r"\s+\d{1,2},?\s+\d{4}",
+    re.I,
+)
+
+
 def parse_cats(html: str) -> list[dict]:
     """
     Parse cat listings from rendered HTML.
 
-    Strategy (in order):
-    1. Look for Wix gallery / repeater items (data-hook attributes).
-    2. Look for any block whose text contains an age pattern + a cat name link.
-    3. Collect all internal links as fallback candidate IDs (for change detection).
+    Strategy 1 (primary): "Meet [Name]!" buttons
+      arthuranimalrescue.com renders each cat card with a "Meet [Name]!" link.
+      This is the most precise signal — only actual cat profiles have this text.
+      We walk up the DOM from the link to find the card container that includes
+      the birth date, then calculate age from that date.
+
+    Strategy 2 (Wix widget fallback): data-hook / data-testid / class selectors
+      Used if the site redesigns away from "Meet!" buttons but keeps Wix widgets.
+
+    Strategy 3 (change-detection last resort): all internal links, no age filter
+      Only fires if both above strategies find nothing. Prints a WARNING so the
+      operator knows parsing broke. No age filtering is applied in this mode.
     """
     from bs4 import BeautifulSoup
 
@@ -164,65 +201,59 @@ def parse_cats(html: str) -> list[dict]:
             }
         )
 
-    # ── Strategy 1: Wix Pro Gallery / Repeater items ──
-    # Covers the most common Wix widget types used for pet galleries.
-    WIX_SELECTORS = (
-        '[data-hook="item-container"],'
-        '[data-hook="repeater-item-wrapper"],'
-        '[data-hook="wix-repeater-container"] > *,'
-        '[data-testid*="galleryItem"],'
-        '[data-testid*="item-container"],'
-        '[class*="gallery-item"],'
-        '[class*="galleryItem"],'
-        '[class*="repeater-item"]'
-    )
-    for item in soup.select(WIX_SELECTORS):
-        text = item.get_text(" ", strip=True)
-        link = item.find("a", href=True)
-        if link:
-            href = link["href"]
-            full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
-            add(href, text[:80], text, full_url)
+    # ── Strategy 1: "Meet [Name]!" links (site-specific, most reliable) ──────
+    for a in soup.find_all("a", href=True):
+        link_text = a.get_text(strip=True)
+        if not re.match(r"Meet .+", link_text, re.I):
+            continue
+        href = a["href"]
+        full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
+        # Extract name from "Meet Steve!" → "Steve"
+        name = re.sub(r"^Meet\s+", "", link_text, flags=re.I).rstrip("!").strip()
+        # Walk up to find the card container that holds the birth date
+        node = a
+        card_text = ""
+        for _ in range(8):
+            node = node.parent
+            if node is None or node.name in ("body", "html"):
+                break
+            text = node.get_text(" ", strip=True)
+            if _DATE_RE.search(text):
+                card_text = text
+                break
+        add(href, name, card_text, full_url)
 
-    # ── Strategy 2: Any <a> whose *immediate* parent block has an age pattern ──
-    # Kept intentionally strict: only look 2 levels up, and skip all
-    # obviously non-cat URL patterns so generic site pages are excluded.
-    _SKIP_URL = [
-        "#", "mailto:", "tel:",
-        "instagram.com", "facebook.com", "tiktok.com", "twitter.com", "youtube.com",
-        "/about", "/contact", "/volunteer", "/foster", "/donate", "/home",
-        "/privacy", "/terms", "/faq", "/news", "/blog", "/gallery",
-        "/shop", "/events", "/resources", "/team", "/staff", "/adopt-process",
-        "/surrender", "/lost", "/found", "/services",
-    ]
+    # ── Strategy 2: Wix Pro Gallery / Repeater widget selectors (fallback) ───
     if not cats:
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if any(skip in href for skip in _SKIP_URL):
-                continue
-            # Only look 2 levels up — avoids pulling in whole-page section text
-            container = a.parent or a
-            if container.name in ("body", "html"):
-                container = a
-            parent2 = container.parent if container.parent else container
-            text = parent2.get_text(" ", strip=True) if parent2 else container.get_text(" ", strip=True)
-            if not re.search(r"(\d+\s*[-\s]?months?|\d+\s*[-\s]?years?|kitten)", text, re.I):
-                continue
-            full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
-            add(href, a.get_text(strip=True)[:80], text, full_url)
-
-    # ── Strategy 3 (change-detection fallback): track all internal links ──
-    # If the site structure changes so we can't parse ages, we still track
-    # new URLs so we don't silently miss cats (though we can't filter by age).
-    if not cats:
-        print("[parser] WARNING: no age-annotated listings found. Tracking all internal links.")
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if href.startswith("/") or "arthuranimalrescue.com" in href:
-                if any(skip in href for skip in ["#", "mailto:", "tel:"]):
-                    continue
+        WIX_SELECTORS = (
+            '[data-hook="item-container"],'
+            '[data-hook="repeater-item-wrapper"],'
+            '[data-hook="wix-repeater-container"] > *,'
+            '[data-testid*="galleryItem"],'
+            '[data-testid*="item-container"],'
+            '[class*="gallery-item"],'
+            '[class*="galleryItem"],'
+            '[class*="repeater-item"]'
+        )
+        for item in soup.select(WIX_SELECTORS):
+            text = item.get_text(" ", strip=True)
+            link = item.find("a", href=True)
+            if link:
+                href = link["href"]
                 full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
-                add(href, a.get_text(strip=True)[:80], "", full_url)
+                add(href, text[:80], text, full_url)
+
+    # ── Strategy 3: change-detection last resort — no age filtering ───────────
+    if not cats:
+        print("[parser] WARNING: could not find cat listings. Tracking all internal links (no age filter).")
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if not (href.startswith("/") or "arthuranimalrescue.com" in href):
+                continue
+            if any(skip in href for skip in ["#", "mailto:", "tel:"]):
+                continue
+            full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
+            add(href, a.get_text(strip=True)[:80], "", full_url)
 
     return cats
 
