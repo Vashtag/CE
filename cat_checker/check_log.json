@@ -187,5 +187,22 @@
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-02-20T20:09:42.263186+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 2,
+    "alerted_cats": [
+      {
+        "name": "Gilly",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/gilly"
+      },
+      {
+        "name": "Percy",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/percy"
+      }
+    ]
   }
 ]
