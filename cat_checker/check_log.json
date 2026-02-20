@@ -221,5 +221,17 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/missy2"
       }
     ]
+  },
+  {
+    "timestamp": "2026-02-20T20:41:48.225107+00:00",
+    "total_on_page": 30,
+    "alerts_sent": 1,
+    "alerted_cats": [
+      {
+        "name": "Marmalade 2",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/marmalade2"
+      }
+    ]
   }
 ]
