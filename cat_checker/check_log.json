@@ -1,32 +1,5 @@
 [
   {
-    "timestamp": "2026-02-19T16:06:03.463918+00:00",
-    "total_on_page": 24,
-    "alerts_sent": 4,
-    "alerted_cats": [
-      {
-        "name": "Steve",
-        "age_months": 7,
-        "url": "https://www.arthuranimalrescue.com/adoptables/steve"
-      },
-      {
-        "name": "Graham 1",
-        "age_months": 8,
-        "url": "https://www.arthuranimalrescue.com/adoptables/graham11"
-      },
-      {
-        "name": "Cheeto",
-        "age_months": 8,
-        "url": "https://www.arthuranimalrescue.com/adoptables/cheeto"
-      },
-      {
-        "name": "Eddie 2",
-        "age_months": 7,
-        "url": "https://www.arthuranimalrescue.com/adoptables/eddie2"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-02-19T16:13:21.385260+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
@@ -662,6 +635,12 @@
   },
   {
     "timestamp": "2026-02-24T08:59:09.851700+00:00",
+    "total_on_page": 28,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-02-24T10:04:10.704114+00:00",
     "total_on_page": 28,
     "alerts_sent": 0,
     "alerted_cats": []
