@@ -69,6 +69,11 @@
     "first_seen": "2026-02-19T16:06:02.909519",
     "name": "Kitty"
   },
+  "https://www.arthuranimalrescue.com/adoptables/maplefall": {
+    "age_months": null,
+    "first_seen": "2026-03-02T02:44:11.513740",
+    "name": "Maplefall"
+  },
   "https://www.arthuranimalrescue.com/adoptables/marmalade2": {
     "age_months": null,
     "first_seen": "2026-02-20T20:41:47.790933",
@@ -104,6 +109,16 @@
     "first_seen": "2026-02-20T20:21:18.586531",
     "name": "Muffin 2"
   },
+  "https://www.arthuranimalrescue.com/adoptables/nightpatch": {
+    "age_months": null,
+    "first_seen": "2026-03-02T02:44:11.513749",
+    "name": "Nightpatch"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/oswald": {
+    "age_months": 10,
+    "first_seen": "2026-03-02T02:44:11.513694",
+    "name": "Oswald"
+  },
   "https://www.arthuranimalrescue.com/adoptables/percy": {
     "age_months": null,
     "first_seen": "2026-02-20T20:09:41.806554",
@@ -124,6 +139,11 @@
     "first_seen": "2026-02-19T16:06:02.909595",
     "name": "Raven"
   },
+  "https://www.arthuranimalrescue.com/adoptables/shadow3": {
+    "age_months": 9,
+    "first_seen": "2026-03-02T02:44:11.513745",
+    "name": "Shadow 3"
+  },
   "https://www.arthuranimalrescue.com/adoptables/smokey3": {
     "age_months": null,
     "first_seen": "2026-02-19T16:06:02.909622",
@@ -143,6 +163,11 @@
     "age_months": 43,
     "first_seen": "2026-02-19T16:06:02.909539",
     "name": "Warden"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/william": {
+    "age_months": 45,
+    "first_seen": "2026-03-02T02:44:11.513730",
+    "name": "William"
   },
   "https://www.arthuranimalrescue.com/adoptables/ziggy2": {
     "age_months": null,
