@@ -1,37 +1,5 @@
 [
   {
-    "timestamp": "2026-03-02T02:44:12.035321+00:00",
-    "total_on_page": 32,
-    "alerts_sent": 5,
-    "alerted_cats": [
-      {
-        "name": "Oswald",
-        "age_months": 10,
-        "url": "https://www.arthuranimalrescue.com/adoptables/oswald"
-      },
-      {
-        "name": "William",
-        "age_months": 45,
-        "url": "https://www.arthuranimalrescue.com/adoptables/william"
-      },
-      {
-        "name": "Maplefall",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/maplefall"
-      },
-      {
-        "name": "Shadow 3",
-        "age_months": 9,
-        "url": "https://www.arthuranimalrescue.com/adoptables/shadow3"
-      },
-      {
-        "name": "Nightpatch",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/nightpatch"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-03-02T04:54:51.373129+00:00",
     "total_on_page": 32,
     "alerts_sent": 0,
@@ -621,6 +589,12 @@
   },
   {
     "timestamp": "2026-03-06T21:36:59.591368+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-03-06T22:37:01.624454+00:00",
     "total_on_page": 27,
     "alerts_sent": 0,
     "alerted_cats": []
