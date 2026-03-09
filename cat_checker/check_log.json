@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-05T05:54:59.492866+00:00",
-    "total_on_page": 29,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-05T07:03:18.580210+00:00",
     "total_on_page": 29,
     "alerts_sent": 0,
@@ -604,5 +598,11 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/sylvia"
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-09T18:09:51.330352+00:00",
+    "total_on_page": 25,
+    "alerts_sent": 0,
+    "alerted_cats": []
   }
 ]
