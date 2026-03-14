@@ -1,17 +1,5 @@
 [
   {
-    "timestamp": "2026-03-09T17:27:03.551153+00:00",
-    "total_on_page": 25,
-    "alerts_sent": 1,
-    "alerted_cats": [
-      {
-        "name": "Sylvia",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/sylvia"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-03-09T18:09:51.330352+00:00",
     "total_on_page": 25,
     "alerts_sent": 0,
@@ -601,6 +589,12 @@
   },
   {
     "timestamp": "2026-03-14T14:01:29.019287+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-03-14T14:56:40.533096+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
