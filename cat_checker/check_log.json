@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-13T17:08:26.751202+00:00",
-    "total_on_page": 24,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-13T18:02:29.037246+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
@@ -604,5 +598,11 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/portia"
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-19T05:00:54.448789+00:00",
+    "total_on_page": 18,
+    "alerts_sent": 0,
+    "alerted_cats": []
   }
 ]
