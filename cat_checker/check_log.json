@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-21T07:39:07.438993+00:00",
-    "total_on_page": 17,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-21T08:42:40.973228+00:00",
     "total_on_page": 17,
     "alerts_sent": 0,
@@ -641,5 +635,11 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/gertrude"
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-26T15:52:13.559978+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 0,
+    "alerted_cats": []
   }
 ]
