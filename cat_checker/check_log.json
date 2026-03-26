@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-21T06:56:29.091920+00:00",
-    "total_on_page": 17,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-21T07:39:07.438993+00:00",
     "total_on_page": 17,
     "alerts_sent": 0,
@@ -615,5 +609,37 @@
     "total_on_page": 19,
     "alerts_sent": 0,
     "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-03-26T14:06:53.932402+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 5,
+    "alerted_cats": [
+      {
+        "name": "Hendrix",
+        "age_months": 9,
+        "url": "https://www.arthuranimalrescue.com/adoptables/hendrix"
+      },
+      {
+        "name": "Bobbie",
+        "age_months": 9,
+        "url": "https://www.arthuranimalrescue.com/adoptables/bobbie"
+      },
+      {
+        "name": "Jinu",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/jinu"
+      },
+      {
+        "name": "Henry",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/henry"
+      },
+      {
+        "name": "Gertrude",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/gertrude"
+      }
+    ]
   }
 ]
