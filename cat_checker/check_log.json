@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-20T21:38:20.841231+00:00",
-    "total_on_page": 17,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-20T22:37:01.182684+00:00",
     "total_on_page": 17,
     "alerts_sent": 0,
@@ -615,5 +609,11 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/conrad"
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-26T05:44:32.456208+00:00",
+    "total_on_page": 19,
+    "alerts_sent": 0,
+    "alerted_cats": []
   }
 ]
