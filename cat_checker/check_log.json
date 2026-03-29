@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-24T10:29:01.887891+00:00",
-    "total_on_page": 16,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-24T11:27:16.432103+00:00",
     "total_on_page": 16,
     "alerts_sent": 0,
@@ -655,6 +649,18 @@
         "name": "Ripley 2",
         "age_months": null,
         "url": "https://www.arthuranimalrescue.com/adoptables/ripley2"
+      }
+    ]
+  },
+  {
+    "timestamp": "2026-03-29T19:38:32.121881+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 1,
+    "alerted_cats": [
+      {
+        "name": "Bernice",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/bernice"
       }
     ]
   }
