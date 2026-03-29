@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-24T11:27:16.432103+00:00",
-    "total_on_page": 16,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-24T12:06:53.036659+00:00",
     "total_on_page": 16,
     "alerts_sent": 0,
@@ -663,5 +657,11 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/bernice"
       }
     ]
+  },
+  {
+    "timestamp": "2026-03-29T20:41:49.710225+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 0,
+    "alerted_cats": []
   }
 ]
