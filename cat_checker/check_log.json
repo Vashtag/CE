@@ -1,17 +1,5 @@
 [
   {
-    "timestamp": "2026-03-26T00:01:07.046492+00:00",
-    "total_on_page": 17,
-    "alerts_sent": 1,
-    "alerted_cats": [
-      {
-        "name": "Sheriff",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/sherifflabrador"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-03-26T03:38:13.700276+00:00",
     "total_on_page": 19,
     "alerts_sent": 2,
@@ -660,6 +648,12 @@
   },
   {
     "timestamp": "2026-03-31T15:48:25.841441+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-03-31T17:08:11.601855+00:00",
     "total_on_page": 27,
     "alerts_sent": 0,
     "alerted_cats": []
