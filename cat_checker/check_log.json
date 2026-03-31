@@ -1,22 +1,5 @@
 [
   {
-    "timestamp": "2026-03-26T03:38:13.700276+00:00",
-    "total_on_page": 19,
-    "alerts_sent": 2,
-    "alerted_cats": [
-      {
-        "name": "Mr. Marbles",
-        "age_months": 9,
-        "url": "https://www.arthuranimalrescue.com/adoptables/mrmarbles"
-      },
-      {
-        "name": "Conrad",
-        "age_months": 8,
-        "url": "https://www.arthuranimalrescue.com/adoptables/conrad"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-03-26T05:44:32.456208+00:00",
     "total_on_page": 19,
     "alerts_sent": 0,
@@ -654,6 +637,12 @@
   },
   {
     "timestamp": "2026-03-31T17:08:11.601855+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-03-31T18:31:39.818510+00:00",
     "total_on_page": 27,
     "alerts_sent": 0,
     "alerted_cats": []
