@@ -1,17 +1,5 @@
 [
   {
-    "timestamp": "2026-03-29T19:38:32.121881+00:00",
-    "total_on_page": 27,
-    "alerts_sent": 1,
-    "alerted_cats": [
-      {
-        "name": "Bernice",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/bernice"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-03-29T20:41:49.710225+00:00",
     "total_on_page": 27,
     "alerts_sent": 0,
@@ -601,6 +589,12 @@
   },
   {
     "timestamp": "2026-04-04T15:01:40.361071+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-04T15:57:22.319627+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
