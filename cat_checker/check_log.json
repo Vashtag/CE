@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-03-31T14:10:30.578489+00:00",
-    "total_on_page": 27,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-03-31T15:48:25.841441+00:00",
     "total_on_page": 27,
     "alerts_sent": 0,
@@ -598,5 +592,17 @@
     "total_on_page": 23,
     "alerts_sent": 0,
     "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-05T23:42:07.344709+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 1,
+    "alerted_cats": [
+      {
+        "name": "Spike",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/spike"
+      }
+    ]
   }
 ]
