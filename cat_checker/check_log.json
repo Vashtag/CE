@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-04-01T09:17:20.683116+00:00",
-    "total_on_page": 24,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-04-01T10:35:26.784605+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
@@ -604,5 +598,17 @@
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-06T19:14:49.289431+00:00",
+    "total_on_page": 25,
+    "alerts_sent": 1,
+    "alerted_cats": [
+      {
+        "name": "Ponzu",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/ponzu"
+      }
+    ]
   }
 ]
