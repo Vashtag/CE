@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-04-04T21:38:41.413924+00:00",
-    "total_on_page": 23,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-04-04T22:38:28.604631+00:00",
     "total_on_page": 23,
     "alerts_sent": 0,
@@ -613,6 +607,12 @@
   },
   {
     "timestamp": "2026-04-10T21:05:13.433088+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-10T22:04:57.183091+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
