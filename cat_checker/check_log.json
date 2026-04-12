@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-04-06T21:07:16.321939+00:00",
-    "total_on_page": 25,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-04-06T22:01:51.670300+00:00",
     "total_on_page": 25,
     "alerts_sent": 0,
@@ -620,5 +614,11 @@
         "url": "https://www.arthuranimalrescue.com/adoptables/august2"
       }
     ]
+  },
+  {
+    "timestamp": "2026-04-12T19:23:33.352220+00:00",
+    "total_on_page": 28,
+    "alerts_sent": 0,
+    "alerted_cats": []
   }
 ]
