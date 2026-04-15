@@ -79,6 +79,11 @@
     "first_seen": "2026-02-19T16:06:02.909629",
     "name": "Graham 1"
   },
+  "https://www.arthuranimalrescue.com/adoptables/hank": {
+    "age_months": 70,
+    "first_seen": "2026-04-15T23:25:49.826976",
+    "name": "Hank"
+  },
   "https://www.arthuranimalrescue.com/adoptables/hendrix": {
     "age_months": 9,
     "first_seen": "2026-03-26T14:06:53.359805",
@@ -158,6 +163,11 @@
     "age_months": 33,
     "first_seen": "2026-02-19T16:06:02.909639",
     "name": "Molly"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/mrbonkers": {
+    "age_months": null,
+    "first_seen": "2026-04-15T23:25:49.826996",
+    "name": "Mr. Bonkers"
   },
   "https://www.arthuranimalrescue.com/adoptables/mrmarbles": {
     "age_months": 9,
