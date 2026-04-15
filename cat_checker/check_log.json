@@ -1,17 +1,5 @@
 [
   {
-    "timestamp": "2026-04-09T02:55:46.487761+00:00",
-    "total_on_page": 24,
-    "alerts_sent": 1,
-    "alerted_cats": [
-      {
-        "name": "Kibble",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/kibble"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-04-09T05:19:38.265023+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
@@ -617,6 +605,12 @@
   },
   {
     "timestamp": "2026-04-15T03:26:35.222071+00:00",
+    "total_on_page": 28,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-15T05:37:46.612034+00:00",
     "total_on_page": 28,
     "alerts_sent": 0,
     "alerted_cats": []
