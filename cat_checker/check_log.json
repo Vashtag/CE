@@ -1,27 +1,5 @@
 [
   {
-    "timestamp": "2026-04-12T18:03:50.468878+00:00",
-    "total_on_page": 28,
-    "alerts_sent": 3,
-    "alerted_cats": [
-      {
-        "name": "Vivienne",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/vivienne"
-      },
-      {
-        "name": "Willow 6",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/willow6"
-      },
-      {
-        "name": "August 2",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/august2"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-04-12T19:23:33.352220+00:00",
     "total_on_page": 28,
     "alerts_sent": 0,
@@ -622,6 +600,12 @@
   },
   {
     "timestamp": "2026-04-19T06:05:09.761588+00:00",
+    "total_on_page": 25,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-19T07:54:24.574917+00:00",
     "total_on_page": 25,
     "alerts_sent": 0,
     "alerted_cats": []
