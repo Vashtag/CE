@@ -1,22 +1,5 @@
 [
   {
-    "timestamp": "2026-04-15T23:25:50.294231+00:00",
-    "total_on_page": 30,
-    "alerts_sent": 2,
-    "alerted_cats": [
-      {
-        "name": "Hank",
-        "age_months": 70,
-        "url": "https://www.arthuranimalrescue.com/adoptables/hank"
-      },
-      {
-        "name": "Mr. Bonkers",
-        "age_months": null,
-        "url": "https://www.arthuranimalrescue.com/adoptables/mrbonkers"
-      }
-    ]
-  },
-  {
     "timestamp": "2026-04-16T00:09:13.526559+00:00",
     "total_on_page": 30,
     "alerts_sent": 0,
@@ -606,6 +589,12 @@
   },
   {
     "timestamp": "2026-04-22T06:05:17.406432+00:00",
+    "total_on_page": 24,
+    "alerts_sent": 0,
+    "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-22T08:17:24.831309+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
