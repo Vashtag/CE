@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-04-19T19:25:23.097062+00:00",
-    "total_on_page": 24,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-04-19T20:02:31.733989+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
@@ -598,5 +592,22 @@
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-04-26T13:21:56.268493+00:00",
+    "total_on_page": 25,
+    "alerts_sent": 2,
+    "alerted_cats": [
+      {
+        "name": "Lucky",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/luckyloonie"
+      },
+      {
+        "name": "Tabasco",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/tabasco"
+      }
+    ]
   }
 ]
