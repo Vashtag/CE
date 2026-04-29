@@ -104,6 +104,11 @@
     "first_seen": "2026-02-19T16:06:02.909602",
     "name": "Jersey Jack"
   },
+  "https://www.arthuranimalrescue.com/adoptables/jerry2": {
+    "age_months": 12,
+    "first_seen": "2026-04-29T19:49:19.437332",
+    "name": "Jerry 2"
+  },
   "https://www.arthuranimalrescue.com/adoptables/jinu": {
     "age_months": null,
     "first_seen": "2026-03-26T14:06:53.359830",
@@ -124,10 +129,20 @@
     "first_seen": "2026-02-19T16:06:02.909519",
     "name": "Kitty"
   },
+  "https://www.arthuranimalrescue.com/adoptables/leon": {
+    "age_months": 10,
+    "first_seen": "2026-04-29T19:49:19.437347",
+    "name": "Leon"
+  },
   "https://www.arthuranimalrescue.com/adoptables/luckyloonie": {
     "age_months": null,
     "first_seen": "2026-04-26T13:21:55.958875",
     "name": "Lucky"
+  },
+  "https://www.arthuranimalrescue.com/adoptables/lyra": {
+    "age_months": null,
+    "first_seen": "2026-04-29T19:49:19.437352",
+    "name": "Lyra"
   },
   "https://www.arthuranimalrescue.com/adoptables/maplefall": {
     "age_months": null,
