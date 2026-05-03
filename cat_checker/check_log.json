@@ -1,11 +1,5 @@
 [
   {
-    "timestamp": "2026-04-26T04:04:15.413507+00:00",
-    "total_on_page": 24,
-    "alerts_sent": 0,
-    "alerted_cats": []
-  },
-  {
     "timestamp": "2026-04-26T06:25:34.295853+00:00",
     "total_on_page": 24,
     "alerts_sent": 0,
@@ -625,5 +619,27 @@
     "total_on_page": 24,
     "alerts_sent": 0,
     "alerted_cats": []
+  },
+  {
+    "timestamp": "2026-05-03T15:55:24.141819+00:00",
+    "total_on_page": 27,
+    "alerts_sent": 3,
+    "alerted_cats": [
+      {
+        "name": "Goose 2",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/goose2"
+      },
+      {
+        "name": "Coulson",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/coulson"
+      },
+      {
+        "name": "Nicky Furry",
+        "age_months": null,
+        "url": "https://www.arthuranimalrescue.com/adoptables/nickyfurry"
+      }
+    ]
   }
 ]
