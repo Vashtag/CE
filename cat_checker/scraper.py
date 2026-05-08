@@ -6,11 +6,6 @@ Checks the adoptables page every 15 min and emails when a new cat ≤ 12 months 
 import json
 import os
 import re
-import smtplib
-import ssl
-import sys
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
 
 ADOPTABLES_URL  = "https://www.arthuranimalrescue.com/adoptables"
@@ -32,8 +27,11 @@ def parse_age_months(text: str) -> int | None:
     """
     Extract age in months from a free-form string.
     Returns None if no age pattern found.
-    Examples: "6 months old", "1 year", "2-year-old", "kitten" → 6, 12, 24, 4
+    Handles: "6 months old", "1 year", "2-year-old", "kitten",
+             and birth dates like "July 19, 2025" or "Jan 12, 2025".
     """
+    from datetime import datetime
+
     t = text.lower()
 
     # "kitten" with no explicit age → assume ~4 months (safely under limit)
@@ -49,6 +47,24 @@ def parse_age_months(text: str) -> int | None:
     y = re.search(r"(\d+)\s*[-\s]?years?", t)
     if y:
         return int(y.group(1)) * 12
+
+    # Birth date like "July 19, 2025" or "Jan 12, 2025"
+    date_m = re.search(
+        r"(january|february|march|april|may|june|july|august|september|"
+        r"october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)"
+        r"\s+(\d{1,2}),?\s+(\d{4})",
+        t,
+    )
+    if date_m:
+        try:
+            dob = datetime.strptime(
+                f"{date_m.group(1).capitalize()} {date_m.group(2)} {date_m.group(3)}",
+                "%B %d %Y",
+            )
+            now = datetime.now()
+            return max((now.year - dob.year) * 12 + (now.month - dob.month), 0)
+        except ValueError:
+            pass
 
     return None
 
@@ -73,24 +89,25 @@ def save_known(known: dict) -> None:
         json.dump(known, f, indent=2, sort_keys=True)
 
 
-def append_log(total_on_page: int, alerted: list[dict]) -> None:
+def append_log(total_on_page: int, alerted: list[dict], paused: bool = False) -> None:
     """Append one run record to check_log.json, keeping the last MAX_LOG_ENTRIES."""
     from datetime import datetime, timezone
     log: list[dict] = []
     if LOG_FILE.exists():
         with open(LOG_FILE) as f:
             log = json.load(f)
-    log.append(
-        {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "total_on_page": total_on_page,
-            "alerts_sent": len(alerted),
-            "alerted_cats": [
-                {"name": c["name"], "age_months": c["age_months"], "url": c["url"]}
-                for c in alerted
-            ],
-        }
-    )
+    entry: dict = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "total_on_page": total_on_page,
+        "alerts_sent": len(alerted),
+        "alerted_cats": [
+            {"name": c["name"], "age_months": c["age_months"], "url": c["url"]}
+            for c in alerted
+        ],
+    }
+    if paused:
+        entry["paused"] = True
+    log.append(entry)
     log = log[-MAX_LOG_ENTRIES:]  # trim oldest
     with open(LOG_FILE, "w") as f:
         json.dump(log, f, indent=2)
@@ -130,22 +147,40 @@ def fetch_html_playwright() -> str:
             args=["--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu"]
         )
         page = browser.new_page(extra_http_headers=BROWSER_HEADERS)
-        page.goto(ADOPTABLES_URL, wait_until="networkidle", timeout=45_000)
-        # Give Wix gallery a moment to fully render
-        page.wait_for_timeout(3_000)
+        # "networkidle" times out on Wix — the site fires constant background
+        # requests (analytics, ads). "load" fires once the main document is ready;
+        # the extra wait gives JS time to render the cat cards.
+        page.goto(ADOPTABLES_URL, wait_until="load", timeout=45_000)
+        page.wait_for_timeout(5_000)
         html = page.content()
         browser.close()
         return html
+
+
+_DATE_RE = re.compile(
+    r"(january|february|march|april|may|june|july|august|september|"
+    r"october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)"
+    r"\s+\d{1,2},?\s+\d{4}",
+    re.I,
+)
 
 
 def parse_cats(html: str) -> list[dict]:
     """
     Parse cat listings from rendered HTML.
 
-    Strategy (in order):
-    1. Look for Wix gallery / repeater items (data-hook attributes).
-    2. Look for any block whose text contains an age pattern + a cat name link.
-    3. Collect all internal links as fallback candidate IDs (for change detection).
+    Strategy 1 (primary): "Meet [Name]!" buttons
+      arthuranimalrescue.com renders each cat card with a "Meet [Name]!" link.
+      This is the most precise signal — only actual cat profiles have this text.
+      We walk up the DOM from the link to find the card container that includes
+      the birth date, then calculate age from that date.
+
+    Strategy 2 (Wix widget fallback): data-hook / data-testid / class selectors
+      Used if the site redesigns away from "Meet!" buttons but keeps Wix widgets.
+
+    Strategy 3 (change-detection last resort): all internal links, no age filter
+      Only fires if both above strategies find nothing. Prints a WARNING so the
+      operator knows parsing broke. No age filtering is applied in this mode.
     """
     from bs4 import BeautifulSoup
 
@@ -168,128 +203,106 @@ def parse_cats(html: str) -> list[dict]:
             }
         )
 
-    # ── Strategy 1: Wix Pro Gallery / Repeater items ──
-    # Wix renders gallery items with data-hook="item-container" or
-    # individual repeater cells with data-testid containing the item slug.
-    for item in soup.select('[data-hook="item-container"], [data-testid*="item"]'):
-        text = item.get_text(" ", strip=True)
-        age_months = parse_age_months(text)
-        link = item.find("a", href=True)
-        if link:
-            href = link["href"]
-            full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
-            add(href, text[:80], text, full_url)
+    # ── Strategy 1: "Meet [Name]!" links (site-specific, most reliable) ──────
+    for a in soup.find_all("a", href=True):
+        link_text = a.get_text(strip=True)
+        if not re.match(r"Meet .+", link_text, re.I):
+            continue
+        href = a["href"]
+        full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
+        # Extract name from "Meet Steve!" → "Steve"
+        name = re.sub(r"^Meet\s+", "", link_text, flags=re.I).rstrip("!").strip()
+        # Walk up to find the card container that holds the birth date
+        node = a
+        card_text = ""
+        for _ in range(8):
+            node = node.parent
+            if node is None or node.name in ("body", "html"):
+                break
+            text = node.get_text(" ", strip=True)
+            if _DATE_RE.search(text):
+                card_text = text
+                break
+        add(href, name, card_text, full_url)
 
-    # ── Strategy 2: Any <a> whose surrounding block has an age pattern ──
+    # ── Strategy 2: Wix Pro Gallery / Repeater widget selectors (fallback) ───
     if not cats:
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if any(skip in href for skip in ["#", "mailto:", "tel:", "instagram.com", "facebook.com", "tiktok.com"]):
-                continue
-            # Look at the parent container text for age info
-            container = a.find_parent(["article", "section", "div", "li"]) or a
-            text = container.get_text(" ", strip=True)
-            if not re.search(r"(\d+\s*[-\s]?months?|\d+\s*[-\s]?years?|kitten)", text, re.I):
-                continue
-            full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
-            add(href, a.get_text(strip=True)[:80], text, full_url)
-
-    # ── Strategy 3 (change-detection fallback): track all internal links ──
-    # If the site structure changes so we can't parse ages, we still track
-    # new URLs so we don't silently miss cats (though we can't filter by age).
-    if not cats:
-        print("[parser] WARNING: no age-annotated listings found. Tracking all internal links.")
-        for a in soup.find_all("a", href=True):
-            href = a["href"]
-            if href.startswith("/") or "arthuranimalrescue.com" in href:
-                if any(skip in href for skip in ["#", "mailto:", "tel:"]):
-                    continue
+        WIX_SELECTORS = (
+            '[data-hook="item-container"],'
+            '[data-hook="repeater-item-wrapper"],'
+            '[data-hook="wix-repeater-container"] > *,'
+            '[data-testid*="galleryItem"],'
+            '[data-testid*="item-container"],'
+            '[class*="gallery-item"],'
+            '[class*="galleryItem"],'
+            '[class*="repeater-item"]'
+        )
+        for item in soup.select(WIX_SELECTORS):
+            text = item.get_text(" ", strip=True)
+            link = item.find("a", href=True)
+            if link:
+                href = link["href"]
                 full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
-                add(href, a.get_text(strip=True)[:80], "", full_url)
+                add(href, text[:80], text, full_url)
+
+    # ── Strategy 3: change-detection last resort — no age filtering ───────────
+    if not cats:
+        print("[parser] WARNING: could not find cat listings. Tracking all internal links (no age filter).")
+        for a in soup.find_all("a", href=True):
+            href = a["href"]
+            if not (href.startswith("/") or "arthuranimalrescue.com" in href):
+                continue
+            if any(skip in href for skip in ["#", "mailto:", "tel:"]):
+                continue
+            full_url = href if href.startswith("http") else f"https://www.arthuranimalrescue.com{href}"
+            add(href, a.get_text(strip=True)[:80], "", full_url)
 
     return cats
 
 
-# ── Email ────────────────────────────────────────────────────────────────────
+# ── Discord notification ──────────────────────────────────────────────────────
 
-def send_email(new_cats: list[dict]) -> None:
-    gmail_user = os.environ["GMAIL_USER"]
-    gmail_password = os.environ["GMAIL_APP_PASSWORD"]
-    cfg = load_config()
-    recipients = cfg.get("notify_emails") or [
-        e.strip() for e in os.environ.get("NOTIFY_EMAILS", "").split(",") if e.strip()
-    ]
+def send_notification(new_cats: list[dict]) -> None:
+    import requests
+    webhook_url = os.environ["DISCORD_WEBHOOK_URL"]
 
-    subject = f"New young cat(s) available at Arthur Animal Rescue! ({len(new_cats)} found)"
-
-    # Plain-text body
-    lines = [
-        "Hi! A new cat under 12 months was just posted on Arthur Animal Rescue.",
-        "",
-        "Adopt page: https://www.arthuranimalrescue.com/adoptables",
-        "",
-        "─" * 40,
-    ]
+    embeds = []
     for cat in new_cats:
-        age_label = f"{cat['age_months']} months" if cat["age_months"] else "age unknown"
-        lines += [
-            f"Name : {cat['name']}",
-            f"Age  : {age_label}",
-            f"Link : {cat['url']}",
-            "",
-        ]
-    lines += ["─" * 40, "Good luck! 🐱"]
-    text_body = "\n".join(lines)
+        # Show the raw date from the card (e.g. "July 19, 2025") — don't interpret it,
+        # since it may be a listing date, not a birth date. Let the user judge age.
+        date_match = _DATE_RE.search(cat.get("age_text", ""))
+        date_label = date_match.group(0).title() if date_match else "unknown"
+        embeds.append({
+            "title": cat["name"],
+            "url": cat["url"],
+            "color": 14711609,  # #E07B39 orange
+            "fields": [
+                {"name": "Date on listing", "value": date_label, "inline": True},
+            ],
+        })
 
-    # HTML body
-    cat_rows = ""
-    for cat in new_cats:
-        age_label = f"{cat['age_months']} months" if cat["age_months"] else "age unknown"
-        cat_rows += f"""
-        <tr>
-          <td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold">{cat['name']}</td>
-          <td style="padding:8px;border-bottom:1px solid #eee">{age_label}</td>
-          <td style="padding:8px;border-bottom:1px solid #eee">
-            <a href="{cat['url']}">View profile</a>
-          </td>
-        </tr>"""
+    plural = "s" if len(new_cats) > 1 else ""
+    payload = {
+        "content": f"🐱 **New cat{plural} at Arthur Animal Rescue!**\n{ADOPTABLES_URL}",
+        "embeds": embeds,
+    }
 
-    html_body = f"""
-    <html><body style="font-family:sans-serif;max-width:600px;margin:auto">
-      <h2 style="color:#e07b39">New cat(s) at Arthur Animal Rescue!</h2>
-      <p>A cat under 12 months was just posted. Be quick!</p>
-      <table style="width:100%;border-collapse:collapse">
-        <tr style="background:#f5f5f5">
-          <th style="padding:8px;text-align:left">Name</th>
-          <th style="padding:8px;text-align:left">Age</th>
-          <th style="padding:8px;text-align:left">Link</th>
-        </tr>
-        {cat_rows}
-      </table>
-      <p><a href="{ADOPTABLES_URL}">View all adoptables →</a></p>
-    </body></html>"""
-
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = gmail_user
-    msg["To"] = ", ".join(recipients)
-    msg.attach(MIMEText(text_body, "plain"))
-    msg.attach(MIMEText(html_body, "html"))
-
-    ctx = ssl.create_default_context()
-    with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as server:
-        server.login(gmail_user, gmail_password)
-        server.sendmail(gmail_user, recipients, msg.as_string())
-
-    print(f"[email] Sent to: {', '.join(recipients)}")
+    resp = requests.post(webhook_url, json=payload, timeout=10)
+    resp.raise_for_status()
+    print(f"[discord] Notification sent ({len(new_cats)} cat(s))")
 
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 def main() -> None:
     cfg = load_config()
-    max_age = cfg.get("max_age_months", 12)
     use_playwright = os.environ.get("USE_PLAYWRIGHT", "false").lower() == "true"
+
+    if cfg.get("paused", False):
+        print("[scraper] Alerts are PAUSED — skipping notifications.")
+        append_log(total_on_page=0, alerted=[], paused=True)
+        print("[scraper] Log updated (paused run recorded).")
+        return
 
     print(f"[scraper] Fetching {ADOPTABLES_URL} ...")
     if use_playwright:
@@ -315,20 +328,16 @@ def main() -> None:
             "age_months": cat["age_months"],
             "first_seen": __import__("datetime").datetime.utcnow().isoformat(),
         }
-        if cat["age_months"] is not None and cat["age_months"] <= max_age:
-            new_matches.append(cat)
-            print(f"[scraper] NEW young cat: {cat['name']} ({cat['age_months']} months)")
-        else:
-            age_label = f"{cat['age_months']} months" if cat["age_months"] else "unknown age"
-            print(f"[scraper] Skipping {cat['name']} ({age_label}) — too old or age unknown")
+        new_matches.append(cat)
+        print(f"[scraper] NEW cat: {cat['name']}")
 
     save_known(known)
 
     if new_matches:
-        print(f"[scraper] Sending email for {len(new_matches)} new cat(s) ...")
-        send_email(new_matches)
+        print(f"[scraper] Sending Discord notification for {len(new_matches)} new cat(s) ...")
+        send_notification(new_matches)
     else:
-        print("[scraper] No new young cats found. Nothing to send.")
+        print("[scraper] No new cats found. Nothing to send.")
 
     append_log(total_on_page=len(cats), alerted=new_matches)
     print("[scraper] Log updated.")

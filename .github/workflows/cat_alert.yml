@@ -17,7 +17,7 @@ permissions:
 # ── Job ──────────────────────────────────────────────────────────────────────
 jobs:
   check-for-cats:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # pinned: ubuntu-latest is now 24.04 which broke playwright deps (libasound2 renamed)
     timeout-minutes: 10
 
     steps:
@@ -61,9 +61,7 @@ jobs:
       # 5. Run the scraper
       - name: Check for new young cats
         env:
-          GMAIL_USER: ${{ secrets.GMAIL_USER }}
-          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
-          NOTIFY_EMAILS: ${{ secrets.NOTIFY_EMAILS }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           # Set to "true" to force Playwright; "false" tries requests first (faster)
           USE_PLAYWRIGHT: 'true'
         run: python cat_checker/scraper.py
