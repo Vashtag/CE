@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CROSSCRAWL v1</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .cell { position: relative; }
+    .cell-num {
+      position: absolute;
+      top: 2px; left: 3px;
+      font-size: 10px;
+      font-weight: 400;
+      line-height: 1;
+      pointer-events: none;
+      color: var(--muted);
+    }
+    .cell-letter { pointer-events: none; }
+    .hud-label { color: var(--muted); font-size: .8rem; margin: 0; }
+    .hud-value { font-size: 1.3rem; font-weight: 700; margin: 0 0 4px; }
+    .focus-bar {
+      height: 8px; border-radius: 4px;
+      background: var(--grid);
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .focus-fill {
+      height: 100%;
+      background: var(--focus);
+      transition: width .2s;
+    }
+    .relic-badge, .curse-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: .8rem;
+      margin: 2px 0;
+    }
+    .relic-badge { background: rgba(102,226,138,.15); color: var(--good); border: 1px solid rgba(102,226,138,.3); }
+    .curse-badge { background: rgba(255,107,107,.15); color: var(--bad);  border: 1px solid rgba(255,107,107,.3); }
+    #status-msg { color: var(--muted); font-size: .9rem; }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div>
+      <h1>CROSSCRAWL <span class="tag">v1</span></h1>
+    </div>
+    <div class="controls">
+      <button id="btn-hc">High Contrast</button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- Left HUD -->
+    <aside class="hud">
+      <p class="hud-label">Room</p>
+      <p class="hud-value"><span id="room-num">1</span> / 3</p>
+
+      <p class="hud-label">Focus</p>
+      <div class="focus-bar"><div class="focus-fill" id="focus-fill" style="width:100%"></div></div>
+      <p class="hud-value" id="focus-val">10</p>
+
+      <p class="hud-label">Relic</p>
+      <div class="relic-badge">🖊 Red Pencil</div>
+
+      <p class="hud-label" style="margin-top:6px">Curse</p>
+      <div class="curse-badge">🌫 Fog of Clue</div>
+
+      <p class="hud-label" style="margin-top:8px">Consumables</p>
+      <div class="actions">
+        <button id="btn-check">Check (<span id="checks-val">3</span>)</button>
+        <button id="btn-reveal">Reveal (<span id="reveals-val">2</span>)</button>
+        <button id="btn-peek">Peek clue (1 Focus)</button>
+      </div>
+
+      <p class="hud-label" style="margin-top:8px">Score</p>
+      <p class="hud-value" id="score-val">0</p>
+      <p class="hud-label">Best</p>
+      <p class="hud-value" id="best-val">0</p>
+    </aside>
+
+    <!-- Right: grid + clues -->
+    <div class="board-and-clues">
+      <div id="grid-container" class="grid"></div>
+
+      <div class="clues">
+        <h2>Across</h2>
+        <ol id="clue-list" class="clue-list"></ol>
+        <div class="tips">
+          Type letters to fill. <b>Tab / Shift-Tab</b> cycle clues.<br>
+          <b>Arrows</b> move within a word. <b>Space</b> peeks the current clue.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="bottombar">
+    <span id="status-msg">Loading…</span>
+    <span id="timer-display">0:00</span>
+  </footer>
+
+  <!-- Room complete dialog -->
+  <dialog id="dialog-room">
+    <h2 id="dlg-room-title">Room Clear!</h2>
+    <p id="dlg-room-msg"></p>
+    <div class="dialog-actions">
+      <button id="btn-next-room">Next Room →</button>
+    </div>
+  </dialog>
+
+  <!-- Game over dialog -->
+  <dialog id="dialog-over">
+    <h2>💀 Game Over</h2>
+    <p id="dlg-over-msg"></p>
+    <div class="dialog-actions">
+      <button id="btn-restart">Try Again</button>
+    </div>
+  </dialog>
+
+  <!-- Win dialog -->
+  <dialog id="dialog-win">
+    <h2>🏆 Run Complete!</h2>
+    <p id="dlg-win-msg"></p>
+    <div class="dialog-actions">
+      <button id="btn-play-again">Play Again</button>
+    </div>
+  </dialog>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
